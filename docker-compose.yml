@@ -1,0 +1,35 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    gpus: all
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    depends_on:
+      - ollama
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    command: >
+      sh -c "until ollama list >/dev/null 2>&1; do sleep 2; done;
+      ollama pull ${QWEN_MODEL:-qwen3:4b}"
+
+  rag-chatbot:
+    build: .
+    depends_on:
+      ollama-pull:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    environment:
+      OLLAMA_URL: http://ollama:11434
+      QWEN_MODEL: ${QWEN_MODEL:-qwen3:4b}
+      VECTORSTORE_PATH: vectorstore/legal_vectorstore.json
+    volumes:
+      - ./vectorstore:/app/vectorstore:ro
+
+volumes:
+  ollama:

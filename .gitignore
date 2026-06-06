@@ -1,0 +1,22 @@
+# Môi trường ảo
+.venv/
+
+# Cấu hình VS Code
+.vscode/
+
+# Các file tạm của Python
+__pycache__/
+*.pyc
+
+# Biến môi trường (Bảo mật API Key)
+.env
+
+# Thư mục dữ liệu tải về (nếu không cần đẩy lên Git)
+downloads/
+
+# Log tunnel tạm
+cloudflared_*.log
+
+# Vector store sinh ra từ step2
+vectorstore/*
+!vectorstore/legal_vectorstore.json
