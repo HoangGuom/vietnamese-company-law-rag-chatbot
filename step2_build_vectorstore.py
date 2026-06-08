@@ -39,13 +39,18 @@ def parse_args() -> argparse.Namespace:
         help="SentenceTransformer model name",
     )
     parser.add_argument("--batch-size", type=int, default=32, help="Embedding batch size")
+    parser.add_argument(
+        "--include-inactive",
+        action="store_true",
+        help="Include chunks marked su_dung_cho_rag=false. By default only current RAG sources are embedded.",
+    )
     args = parser.parse_args()
     if args.batch_size <= 0:
         parser.error("--batch-size must be greater than 0")
     return args
 
 
-def load_chunks(path: Path) -> list[dict[str, Any]]:
+def load_chunks(path: Path, include_inactive: bool = False) -> tuple[list[dict[str, Any]], int]:
     with path.open("r", encoding="utf-8") as handle:
         data = json.load(handle)
 
@@ -67,7 +72,11 @@ def load_chunks(path: Path) -> list[dict[str, Any]]:
         preview = ", ".join(duplicates[:10])
         raise ValueError(f"Duplicate chunk_id values found: {preview}")
 
-    return data
+    if include_inactive:
+        return data, 0
+
+    active_chunks = [chunk for chunk in data if chunk.get("su_dung_cho_rag", True)]
+    return active_chunks, len(data) - len(active_chunks)
 
 
 def metadata_for(chunk: dict[str, Any]) -> dict[str, Any]:
@@ -147,7 +156,7 @@ def main() -> None:
     input_path = Path(args.input)
     output_path = Path(args.output)
 
-    chunks = load_chunks(input_path)
+    chunks, skipped_inactive = load_chunks(input_path, args.include_inactive)
     try:
         records, manifest = build_vectors(chunks, args.model, args.batch_size)
     except RuntimeError as exc:
@@ -155,6 +164,8 @@ def main() -> None:
     save_vectorstore(records, manifest, output_path)
 
     print(f"Loaded {len(chunks)} chunks from {input_path}")
+    if skipped_inactive:
+        print(f"Skipped {skipped_inactive} inactive/historical chunks")
     print(f"Vector type: {manifest['vector_type']}")
     print(f"Embedding model: {manifest['embedding_model']}")
     print(f"Embedding dimension: {manifest['embedding_dimension']}")

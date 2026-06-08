@@ -1,0 +1,93 @@
+[
+  {
+    "so_hieu": "67/VBHN-VPQH",
+    "chunks": 228,
+    "tinh_trang_hieu_luc": "van_ban_hop_nhat_hien_hanh",
+    "ngay_het_hieu_luc": null,
+    "nguon_hieu_luc": "https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-67-vbhn-vpqh-45865/58269.htm",
+    "source_url": "https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-67-vbhn-vpqh-45865/58269.htm",
+    "su_dung_cho_rag": true
+  },
+  {
+    "so_hieu": "76/2025/QH15",
+    "chunks": 8,
+    "tinh_trang_hieu_luc": "con_hieu_luc",
+    "ngay_het_hieu_luc": null,
+    "nguon_hieu_luc": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-76-2025-qh15-45505-57569?format=doc",
+    "source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-76-2025-qh15-45505-57569?format=doc",
+    "su_dung_cho_rag": true
+  },
+  {
+    "so_hieu": "168/2025/NĐ-CP",
+    "chunks": 138,
+    "tinh_trang_hieu_luc": "con_hieu_luc",
+    "ngay_het_hieu_luc": null,
+    "nguon_hieu_luc": "https://vanban.chinhphu.vn/?classid=1&docid=214334&pageid=27160&typegroupid=4",
+    "source_url": "https://vanban.chinhphu.vn/?classid=1&docid=214334&pageid=27160&typegroupid=4",
+    "su_dung_cho_rag": true
+  },
+  {
+    "so_hieu": "68/2025/TT-BTC",
+    "chunks": 0,
+    "tinh_trang_hieu_luc": "con_hieu_luc",
+    "ngay_het_hieu_luc": null,
+    "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=179097",
+    "source_url": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=179097",
+    "su_dung_cho_rag": true,
+    "ghi_chu": "Văn bản hiện hành thay thế nhóm thông tư cũ, cần crawl bổ sung để có nội dung biểu mẫu."
+  },
+  {
+    "so_hieu": "59/2020/QH14",
+    "chunks": 223,
+    "tinh_trang_hieu_luc": "con_hieu_luc_mot_phan_da_duoc_hop_nhat",
+    "ngay_het_hieu_luc": null,
+    "nguon_hieu_luc": "https://vbpl.vn/botainguyen/Pages/vbpq-lichsu.aspx?ItemID=142881",
+    "source_url": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=142847",
+    "su_dung_cho_rag": false
+  },
+  {
+    "so_hieu": "03/2022/QH15",
+    "chunks": 15,
+    "tinh_trang_hieu_luc": "con_hieu_luc_da_duoc_hop_nhat",
+    "ngay_het_hieu_luc": null,
+    "nguon_hieu_luc": "https://congbao.chinhphu.vn/so-do-van-ban-so-03-2022-qh15-36795",
+    "source_url": "https://congbao.chinhphu.vn/so-do-van-ban-so-03-2022-qh15-36795",
+    "su_dung_cho_rag": false
+  },
+  {
+    "so_hieu": "01/2021/NĐ-CP",
+    "chunks": 14,
+    "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
+    "ngay_het_hieu_luc": "01/07/2025",
+    "nguon_hieu_luc": "https://vbpl.vn/botaichinh/Pages/vbpq-lichsu.aspx?ItemID=153870",
+    "source_url": "https://vbpl.vn/botaichinh/Pages/vbpq-lichsu.aspx?ItemID=153870",
+    "su_dung_cho_rag": false
+  },
+  {
+    "so_hieu": "01/2021/TT-BKHĐT",
+    "chunks": 10,
+    "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
+    "ngay_het_hieu_luc": "01/07/2025",
+    "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+    "source_url": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+    "su_dung_cho_rag": false
+  },
+  {
+    "so_hieu": "02/2023/TT-BKHĐT",
+    "chunks": 13,
+    "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
+    "ngay_het_hieu_luc": "01/07/2025",
+    "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+    "source_url": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+    "su_dung_cho_rag": false
+  },
+  {
+    "so_hieu": "6568/VBHN-BKHĐT",
+    "chunks": 10,
+    "tinh_trang_hieu_luc": "khong_dung_cho_hien_hanh_do_van_ban_goc_het_hieu_luc",
+    "ngay_het_hieu_luc": "01/07/2025",
+    "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+    "source_url": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+    "su_dung_cho_rag": false
+  }
+]

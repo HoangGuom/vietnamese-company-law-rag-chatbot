@@ -60,9 +60,33 @@ $env:QWEN_MODEL="qwen3:4b"
 $env:OLLAMA_URL="http://localhost:11434"
 ```
 
-## Ghi chú dữ liệu
+## Ghi chú dữ liệu pháp luật
 
-`legal_chunks.json` hiện có dữ liệu từ 9 văn bản. Khi kiểm tra, văn bản `01/2021/NĐ-CP` chỉ parse được 14 điều trong khi code kỳ vọng tối thiểu 80 điều, nên nguồn tải về có thể chưa phải toàn văn.
+Trạng thái hiệu lực của các văn bản được ghi trong `legal_sources_audit.json`.
+`legal_chunks.json` vẫn giữ cả văn bản lịch sử để đối chiếu, nhưng khi build
+vectorstore mặc định `step2_build_vectorstore.py` chỉ lấy các chunk có
+`su_dung_cho_rag=true`.
+
+Vectorstore hiện hành đang dùng:
+
+- `67/VBHN-VPQH`: văn bản hợp nhất Luật Doanh nghiệp 2025.
+- `76/2025/QH15`: Luật sửa đổi, bổ sung Luật Doanh nghiệp 2025.
+- `168/2025/NĐ-CP`: Nghị định hiện hành về đăng ký doanh nghiệp.
+
+Các văn bản không dùng cho RAG hiện hành:
+
+- `01/2021/NĐ-CP`: hết hiệu lực toàn bộ từ `01/07/2025`, bị thay thế bởi `168/2025/NĐ-CP`.
+- `01/2021/TT-BKHĐT` và `02/2023/TT-BKHĐT`: hết hiệu lực từ `01/07/2025`, bị thay thế bởi `68/2025/TT-BTC`.
+- `6568/VBHN-BKHĐT`: không dùng cho hiện hành vì hợp nhất nhóm thông tư cũ đã hết hiệu lực.
+- `59/2020/QH14` và `03/2022/QH15`: giữ để đối chiếu lịch sử, nhưng không embed mặc định vì nội dung hiện hành đã được hợp nhất trong `67/VBHN-VPQH`.
+
+`68/2025/TT-BTC` đã được xác định là văn bản hiện hành, nhưng chưa có chunk trong
+dataset hiện tại. Nên crawl bổ sung văn bản này nếu muốn chatbot trả lời sâu về
+biểu mẫu đăng ký doanh nghiệp, đăng ký hộ kinh doanh.
+
+Nguồn ưu tiên khi kiểm tra hiệu lực: `congbao.chinhphu.vn`,
+`vanban.chinhphu.vn`, `vbpl.vn`. `thuvienphapluat.vn` chỉ nên dùng làm nguồn
+tham khảo/fallback.
 
 ## Chạy Web App
 

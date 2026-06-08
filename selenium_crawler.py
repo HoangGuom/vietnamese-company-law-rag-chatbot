@@ -41,96 +41,136 @@ from webdriver_manager.microsoft import EdgeChromiumDriverManager
 # ============================================================
 
 LAW_LIST = [
-    # --- ƯU TIÊN 1: Văn bản hợp nhất (đã tích hợp tất cả sửa đổi) ---
     {
         "ten": "VB hợp nhất Luật Doanh nghiệp 2025",
         "so_hieu": "67/VBHN-VPQH",
         "loai": "hopnhat",
         "hieu_luc": "01/07/2025",
+        "tinh_trang_hieu_luc": "van_ban_hop_nhat_hien_hanh",
+        "ngay_het_hieu_luc": None,
+        "nguon_hieu_luc": "https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-67-vbhn-vpqh-45865/58269.htm",
+        "su_dung_cho_rag": True,
         "tu_khoa_tim": "67/VBHN-VPQH luật doanh nghiệp",
-        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-67-VBHN-VPQH-2025-Luat-Doanh-nghiep-671127.aspx",
+        "url_truc_tiep": "https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-67-vbhn-vpqh-45865/58269.htm",
         "uu_tien": 1,
     },
-    # --- ƯU TIÊN 2: Luật sửa đổi mới nhất 2025 ---
     {
         "ten": "Luật sửa đổi bổ sung Luật Doanh nghiệp 2025",
         "so_hieu": "76/2025/QH15",
-        "loai": "luat",
+        "loai": "luat_sua_doi",
         "hieu_luc": "01/07/2025",
+        "tinh_trang_hieu_luc": "con_hieu_luc",
+        "ngay_het_hieu_luc": None,
+        "nguon_hieu_luc": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-76-2025-qh15-45505-57569?format=doc",
+        "su_dung_cho_rag": True,
         "tu_khoa_tim": "76/2025/QH15 luật doanh nghiệp",
-        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-sua-doi-2025-so-76-2025-QH15-659899.aspx",
+        "url_truc_tiep": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-76-2025-qh15-45505-57569?format=doc",
         "uu_tien": 2,
     },
-    # --- ƯU TIÊN 3: Luật gốc 2020 ---
-    {
-        "ten": "Luật Doanh nghiệp 2020",
-        "so_hieu": "59/2020/QH14",
-        "loai": "luat",
-        "hieu_luc": "01/01/2021",
-        "tu_khoa_tim": "59/2020/QH14 luật doanh nghiệp",
-        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-so-59-2020-QH14-427301.aspx",
-        "uu_tien": 3,
-    },
-    # --- ƯU TIÊN 4: Luật sửa đổi 2022 ---
-    {
-        "ten": "Luật sửa đổi bổ sung Luật Doanh nghiệp 2022",
-        "so_hieu": "03/2022/QH15",
-        "loai": "luat",
-        "hieu_luc": "01/03/2022",
-        "tu_khoa_tim": "03/2022/QH15 sửa đổi doanh nghiệp",
-        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/dau-tu/Luat-sua-doi-Luat-Dau-tu-cong-Luat-Dau-tu-theo-phuong-thuc-doi-tac-cong-tu-486653.aspx",
-        "uu_tien": 4,
-    },
-    # --- ƯU TIÊN 5: Nghị định đăng ký DN mới nhất ---
     {
         "ten": "Nghị định 168/2025/NĐ-CP đăng ký doanh nghiệp",
         "so_hieu": "168/2025/NĐ-CP",
         "loai": "nghi_dinh",
         "hieu_luc": "01/07/2025",
+        "tinh_trang_hieu_luc": "con_hieu_luc",
+        "ngay_het_hieu_luc": None,
+        "nguon_hieu_luc": "https://vanban.chinhphu.vn/?classid=1&docid=214334&pageid=27160&typegroupid=4",
+        "su_dung_cho_rag": True,
         "tu_khoa_tim": "168/2025/NĐ-CP đăng ký doanh nghiệp",
-        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-168-2025-ND-CP-dang-ky-doanh-nghiep-623074.aspx",
-        "uu_tien": 5,
+        "url_truc_tiep": "https://vanban.chinhphu.vn/?classid=1&docid=214334&pageid=27160&typegroupid=4",
+        "uu_tien": 3,
     },
-    # --- ƯU TIÊN 6: Nghị định nền tảng trước khi thay thế ---
+    {
+        "ten": "Thông tư 68/2025/TT-BTC biểu mẫu đăng ký doanh nghiệp, đăng ký hộ kinh doanh",
+        "so_hieu": "68/2025/TT-BTC",
+        "loai": "thong_tu",
+        "hieu_luc": "01/07/2025",
+        "tinh_trang_hieu_luc": "con_hieu_luc",
+        "ngay_het_hieu_luc": None,
+        "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=179097",
+        "su_dung_cho_rag": True,
+        "tu_khoa_tim": "68/2025/TT-BTC biểu mẫu đăng ký doanh nghiệp",
+        "url_truc_tiep": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=179097",
+        "uu_tien": 4,
+    },
+    {
+        "ten": "Luật Doanh nghiệp 2020",
+        "so_hieu": "59/2020/QH14",
+        "loai": "luat_goc",
+        "hieu_luc": "01/01/2021",
+        "tinh_trang_hieu_luc": "con_hieu_luc_mot_phan_da_duoc_hop_nhat",
+        "ngay_het_hieu_luc": None,
+        "nguon_hieu_luc": "https://vbpl.vn/botainguyen/Pages/vbpq-lichsu.aspx?ItemID=142881",
+        "su_dung_cho_rag": False,
+        "tu_khoa_tim": "59/2020/QH14 luật doanh nghiệp",
+        "url_truc_tiep": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=142847",
+        "uu_tien": 20,
+    },
+    {
+        "ten": "Luật sửa đổi bổ sung Luật Doanh nghiệp 2022",
+        "so_hieu": "03/2022/QH15",
+        "loai": "luat_sua_doi",
+        "hieu_luc": "01/03/2022",
+        "tinh_trang_hieu_luc": "con_hieu_luc_da_duoc_hop_nhat",
+        "ngay_het_hieu_luc": None,
+        "nguon_hieu_luc": "https://congbao.chinhphu.vn/so-do-van-ban-so-03-2022-qh15-36795",
+        "su_dung_cho_rag": False,
+        "tu_khoa_tim": "03/2022/QH15 sửa đổi doanh nghiệp",
+        "url_truc_tiep": "https://congbao.chinhphu.vn/so-do-van-ban-so-03-2022-qh15-36795",
+        "uu_tien": 21,
+    },
     {
         "ten": "Nghị định 01/2021/NĐ-CP đăng ký doanh nghiệp",
         "so_hieu": "01/2021/NĐ-CP",
         "loai": "nghi_dinh",
         "hieu_luc": "04/01/2021",
+        "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
+        "ngay_het_hieu_luc": "01/07/2025",
+        "nguon_hieu_luc": "https://vbpl.vn/botaichinh/Pages/vbpq-lichsu.aspx?ItemID=153870",
+        "su_dung_cho_rag": False,
         "tu_khoa_tim": "01/2021/NĐ-CP đăng ký doanh nghiệp",
-        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-01-2021-ND-CP-dang-ky-doanh-nghiep-283247.aspx",
-        "uu_tien": 6,
+        "url_truc_tiep": "https://vbpl.vn/botaichinh/Pages/vbpq-lichsu.aspx?ItemID=153870",
+        "uu_tien": 30,
         "expected_min_articles": 80,
     },
-    # --- ƯU TIÊN 7: Thông tư hướng dẫn đăng ký doanh nghiệp ---
     {
         "ten": "Thông tư 01/2021/TT-BKHĐT hướng dẫn đăng ký doanh nghiệp",
         "so_hieu": "01/2021/TT-BKHĐT",
         "loai": "thong_tu",
         "hieu_luc": "01/05/2021",
+        "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
+        "ngay_het_hieu_luc": "01/07/2025",
+        "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "su_dung_cho_rag": False,
         "tu_khoa_tim": "01/2021/TT-BKHĐT hướng dẫn đăng ký doanh nghiệp",
-        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-01-2021-TT-BKHDT-huong-dan-dang-ky-doanh-nghiep-465911.aspx",
-        "uu_tien": 7,
+        "url_truc_tiep": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "uu_tien": 31,
     },
-    # --- ƯU TIÊN 8: Thông tư sửa đổi 2023 ---
     {
         "ten": "Thông tư 02/2023/TT-BKHĐT sửa đổi Thông tư 01/2021/TT-BKHĐT",
         "so_hieu": "02/2023/TT-BKHĐT",
         "loai": "thong_tu",
         "hieu_luc": "01/07/2023",
+        "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
+        "ngay_het_hieu_luc": "01/07/2025",
+        "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "su_dung_cho_rag": False,
         "tu_khoa_tim": "02/2023/TT-BKHĐT sửa đổi Thông tư 01/2021/TT-BKHĐT",
-        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-02-2023-TT-BKHDT-sua-doi-Thong-tu-01-2021-TT-BKHDT-dang-ky-doanh-nghiep-563848.aspx",
-        "uu_tien": 8,
+        "url_truc_tiep": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "uu_tien": 32,
     },
-    # --- ƯU TIÊN 9: Văn bản hợp nhất hướng dẫn đăng ký doanh nghiệp ---
     {
         "ten": "VBHN 6568/VBHN-BKHĐT 2024 thông tư hướng dẫn đăng ký doanh nghiệp",
         "so_hieu": "6568/VBHN-BKHĐT",
         "loai": "vb_hop_nhat",
         "hieu_luc": "19/08/2024",
+        "tinh_trang_hieu_luc": "khong_dung_cho_hien_hanh_do_van_ban_goc_het_hieu_luc",
+        "ngay_het_hieu_luc": "01/07/2025",
+        "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "su_dung_cho_rag": False,
         "tu_khoa_tim": "6568/VBHN-BKHĐT hướng dẫn đăng ký doanh nghiệp",
         "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-6568-VBHN-BKHDT-2024-Thong-tu-huong-dan-dang-ky-doanh-nghiep-622234.aspx",
-        "uu_tien": 9,
+        "uu_tien": 33,
     },
 ]
 
@@ -148,6 +188,7 @@ TRUSTED_DOWNLOAD_DOMAINS = {
     "www.vbpl.vn",
     "datafiles.chinhphu.vn",
     "vanban.chinhphu.vn",
+    "congbao.chinhphu.vn",
 }
 
 
@@ -162,6 +203,10 @@ class LegalChunk:
     so_hieu: str
     loai: str
     hieu_luc: str
+    tinh_trang_hieu_luc: str
+    ngay_het_hieu_luc: Optional[str]
+    nguon_hieu_luc: Optional[str]
+    su_dung_cho_rag: bool
     chuong: Optional[str]
     ten_chuong: Optional[str]
     so_dieu: str
@@ -707,6 +752,10 @@ def parse_chunks(raw: str, law: dict, source: str, source_url: str, source_file:
                 so_hieu=law["so_hieu"],
                 loai=law["loai"],
                 hieu_luc=law["hieu_luc"],
+                tinh_trang_hieu_luc=law.get("tinh_trang_hieu_luc", "chua_kiem_tra"),
+                ngay_het_hieu_luc=law.get("ngay_het_hieu_luc"),
+                nguon_hieu_luc=law.get("nguon_hieu_luc"),
+                su_dung_cho_rag=law.get("su_dung_cho_rag", True),
                 chuong=pos["chuong"],
                 ten_chuong=pos["ten_chuong"],
                 so_dieu=pos["so_dieu"],
