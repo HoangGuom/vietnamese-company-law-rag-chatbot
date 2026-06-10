@@ -263,7 +263,7 @@ def create_driver(headless: bool = False) -> webdriver.Edge:
     opts.add_experimental_option("prefs", prefs)
 
     driver = webdriver.Edge(
-        service=Service(EdgeChromiumDriverManager().install()),
+        service=Service("drivers/msedgedriver.exe"),
         options=opts,
     )
 
