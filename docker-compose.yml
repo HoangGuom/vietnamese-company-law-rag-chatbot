@@ -6,7 +6,7 @@ services:
       - "11434:11434"
     volumes:
       # Model lưu vào volume, tồn tại giữa các lần restart
-      # Lần đầu pull qwen3:4b ~2.5GB, từ lần 2 dùng cache
+      # Lần đầu pull qwen3:4b ~2.5GB, từ lần 2 trở đi dùng cache
       - ollama_data:/root/.ollama
     # GPU support — Docker Compose v2 syntax chuẩn
     # Máy KHÔNG có GPU: xóa hoặc comment cả khối deploy bên dưới
@@ -64,5 +64,5 @@ services:
 volumes:
   ollama_data:
     # Volume giữ toàn bộ model Qwen đã pull
-    # docker compose down KHÔNG xóa volume
-    # Muốn xóa hẳn: docker compose down -v
+    # docker compose down KHÔNG xóa volume này
+    # Muốn xóa hẳn để pull lại: docker compose down -v

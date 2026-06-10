@@ -2,7 +2,6 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-# Cache HuggingFace model vào trong image, không download lại mỗi lần start
 ENV HF_HOME=/app/.cache/huggingface
 
 WORKDIR /app
@@ -18,7 +17,7 @@ COPY step3_rag_chatbot.py rag_web_app.py ./
 COPY vectorstore ./vectorstore
 
 # Pre-download embedding model vào image khi build
-# Clone về rồi docker compose up --build là chạy offline hoàn toàn
+# Sau này chạy offline hoàn toàn, không cần HuggingFace internet lúc runtime
 RUN python - <<'PYEOF'
 from sentence_transformers import SentenceTransformer
 import json, pathlib

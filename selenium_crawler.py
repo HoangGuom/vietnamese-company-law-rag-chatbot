@@ -921,3 +921,28 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# 1. Tự mở trình duyệt và điều hướng
+# Tự mở Edge → vào URL trong LAW_LIST
+# → tự click, scroll, chờ trang load
+# → tự tìm nút "Tải về" / "Download"
+# → tự click tải file PDF hoặc HTML về máy
+# Không cần bạn ngồi tự tay mở từng trang, tìm nút tải, click.
+
+# 2. Tự extract text từ file đã tải
+# File PDF  → dùng pdfplumber tự đọc, lấy text
+# File HTML → dùng selenium tự đọc DOM, lấy text
+# → làm sạch text (xóa ký tự thừa, chuẩn hóa Unicode)
+
+# 3. Tự cắt thành chunks theo cấu trúc luật
+# Text thô
+# → tự tìm pattern "Điều 1", "Điều 2"... bằng regex
+# → tự cắt thành từng chunk theo từng Điều
+# → tự gắn metadata (so_hieu, ten_dieu, chuong...)
+# → tự lưu ra legal_chunks.json
+
+# Cái bạn vẫn phải làm tay
+# Lên web tra cứu văn bản nào còn hiệu lực
+# → tìm URL
+# → điền vào LAW_LIST
