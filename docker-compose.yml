@@ -1,22 +1,51 @@
 services:
+  # ── 1. Ollama server ────────────────────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
     ports:
       - "11434:11434"
     volumes:
-      - ollama:/root/.ollama
-    gpus: all
+      # Model lưu vào volume, tồn tại giữa các lần restart
+      # Lần đầu pull qwen3:4b ~2.5GB, từ lần 2 dùng cache
+      - ollama_data:/root/.ollama
+    # GPU support — Docker Compose v2 syntax chuẩn
+    # Máy KHÔNG có GPU: xóa hoặc comment cả khối deploy bên dưới
+    # Ollama vẫn chạy CPU, chỉ chậm hơn ~5-10x
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      interval: 5s
+      timeout: 5s
+      retries: 12  # chờ tối đa 60s cho Ollama khởi động
 
+  # ── 2. Pull Qwen model vào volume (chạy một lần rồi thoát) ─────────────────
   ollama-pull:
     image: ollama/ollama:latest
     depends_on:
-      - ollama
+      ollama:
+        condition: service_healthy  # đợi Ollama thực sự sẵn sàng
     environment:
       OLLAMA_HOST: http://ollama:11434
+    # Kiểm tra model đã có chưa, tránh re-download khi docker compose up lần 2
     command: >
-      sh -c "until ollama list >/dev/null 2>&1; do sleep 2; done;
-      ollama pull ${QWEN_MODEL:-qwen3:4b}"
+      sh -c "
+        if ollama list | grep -q '${QWEN_MODEL:-qwen3:4b}'; then
+          echo 'Model ${QWEN_MODEL:-qwen3:4b} already exists, skipping pull.';
+        else
+          echo 'Pulling ${QWEN_MODEL:-qwen3:4b}...';
+          ollama pull ${QWEN_MODEL:-qwen3:4b};
+        fi
+      "
+    volumes:
+      - ollama_data:/root/.ollama  # dùng chung volume với ollama service
 
+  # ── 3. RAG chatbot web app ──────────────────────────────────────────────────
   rag-chatbot:
     build: .
     depends_on:
@@ -30,6 +59,10 @@ services:
       VECTORSTORE_PATH: vectorstore/legal_vectorstore.json
     volumes:
       - ./vectorstore:/app/vectorstore:ro
+    restart: unless-stopped
 
 volumes:
-  ollama:
+  ollama_data:
+    # Volume giữ toàn bộ model Qwen đã pull
+    # docker compose down KHÔNG xóa volume
+    # Muốn xóa hẳn: docker compose down -v
