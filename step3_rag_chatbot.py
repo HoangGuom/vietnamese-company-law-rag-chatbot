@@ -86,6 +86,12 @@ def load_vectorstore(path: Path) -> tuple[dict[str, Any], list[dict[str, Any]], 
     if not documents:
         raise ValueError("Vector store has no documents")
 
+    if len(documents) < 20:
+        print(
+            f"\n[⚠️ CẢNH BÁO] Vector store chỉ chứa {len(documents)} documents (quá ít!)."
+            "\n              Chatbot có thể trả lời không chính xác do thiếu dữ liệu.\n"
+        )
+
     vectors = np.array([doc["vector"] for doc in documents], dtype=np.float32)
     if vectors.ndim != 2:
         raise ValueError("Document vectors must be a 2D array")

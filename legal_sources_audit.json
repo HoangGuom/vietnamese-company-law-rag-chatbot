@@ -3,117 +3,288 @@
     "so_hieu": "168/2025/NĐ-CP",
     "ten_van_ban": "Nghị định 168/2025/NĐ-CP đăng ký doanh nghiệp",
     "loai": "nghi_dinh",
-    "chunks_active": 138,
-    "chunks_total": 138,
-    "su_dung_cho_rag": true,
+    "chunks_active": 133,
+    "chunks_inactive": 0,
+    "chunks_total": 133,
+    "rag_status": "all",
+    "has_rag_chunks": true,
+    "all_chunks_used_for_rag": true,
+    "flag_consistency": "all_true",
     "hieu_luc_tu": "01/07/2025",
     "tinh_trang_hieu_luc": "con_hieu_luc",
     "ngay_het_hieu_luc": null,
+    "tinh_trang_hieu_luc_values": [
+      "con_hieu_luc"
+    ],
+    "ngay_het_hieu_luc_values": [],
     "nguon_hieu_luc": "https://vanban.chinhphu.vn/?classid=1&docid=214334&pageid=27160&typegroupid=4",
-    "source_url": "https://vanban.chinhphu.vn/?classid=1&docid=214334&pageid=27160&typegroupid=4"
+    "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-168-2025-ND-CP-dang-ky-doanh-nghiep-623074.aspx",
+    "nguon_hieu_luc_values": [
+      "https://vanban.chinhphu.vn/?classid=1&docid=214334&pageid=27160&typegroupid=4"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-168-2025-ND-CP-dang-ky-doanh-nghiep-623074.aspx"
+    ],
+    "warnings": []
   },
   {
     "so_hieu": "67/VBHN-VPQH",
     "ten_van_ban": "VB hợp nhất Luật Doanh nghiệp 2025",
     "loai": "hopnhat",
-    "chunks_active": 228,
-    "chunks_total": 228,
-    "su_dung_cho_rag": true,
+    "chunks_active": 224,
+    "chunks_inactive": 0,
+    "chunks_total": 224,
+    "rag_status": "all",
+    "has_rag_chunks": true,
+    "all_chunks_used_for_rag": true,
+    "flag_consistency": "all_true",
     "hieu_luc_tu": "01/07/2025",
     "tinh_trang_hieu_luc": "van_ban_hop_nhat_hien_hanh",
     "ngay_het_hieu_luc": null,
-    "nguon_hieu_luc": "https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-67-vbhn-vpqh-45865/58269.htm",
-    "source_url": "https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-67-vbhn-vpqh-45865/58269.htm"
+    "tinh_trang_hieu_luc_values": [
+      "van_ban_hop_nhat_hien_hanh"
+    ],
+    "ngay_het_hieu_luc_values": [],
+    "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-67-VBHN-VPQH-2025-Luat-Doanh-nghiep-671127.aspx",
+    "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-67-VBHN-VPQH-2025-Luat-Doanh-nghiep-671127.aspx",
+    "nguon_hieu_luc_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-67-VBHN-VPQH-2025-Luat-Doanh-nghiep-671127.aspx"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-67-VBHN-VPQH-2025-Luat-Doanh-nghiep-671127.aspx"
+    ],
+    "warnings": []
+  },
+  {
+    "so_hieu": "68/2025/TT-BTC",
+    "ten_van_ban": "Thông tư 68/2025/TT-BTC biểu mẫu đăng ký doanh nghiệp, đăng ký hộ kinh doanh",
+    "loai": "thong_tu",
+    "chunks_active": 5,
+    "chunks_inactive": 0,
+    "chunks_total": 5,
+    "rag_status": "all",
+    "has_rag_chunks": true,
+    "all_chunks_used_for_rag": true,
+    "flag_consistency": "all_true",
+    "hieu_luc_tu": "01/07/2025",
+    "tinh_trang_hieu_luc": "con_hieu_luc",
+    "ngay_het_hieu_luc": null,
+    "tinh_trang_hieu_luc_values": [
+      "con_hieu_luc"
+    ],
+    "ngay_het_hieu_luc_values": [],
+    "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx",
+    "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx",
+    "nguon_hieu_luc_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx"
+    ],
+    "warnings": []
   },
   {
     "so_hieu": "76/2025/QH15",
     "ten_van_ban": "Luật sửa đổi bổ sung Luật Doanh nghiệp 2025",
-    "loai": "luat",
-    "chunks_active": 8,
-    "chunks_total": 8,
-    "su_dung_cho_rag": true,
+    "loai": "luat_sua_doi",
+    "chunks_active": 5,
+    "chunks_inactive": 0,
+    "chunks_total": 5,
+    "rag_status": "all",
+    "has_rag_chunks": true,
+    "all_chunks_used_for_rag": true,
+    "flag_consistency": "all_true",
     "hieu_luc_tu": "01/07/2025",
     "tinh_trang_hieu_luc": "con_hieu_luc",
     "ngay_het_hieu_luc": null,
-    "nguon_hieu_luc": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-76-2025-qh15-45505-57569?format=doc",
-    "source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-76-2025-qh15-45505-57569?format=doc"
+    "tinh_trang_hieu_luc_values": [
+      "con_hieu_luc"
+    ],
+    "ngay_het_hieu_luc_values": [],
+    "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-sua-doi-2025-so-76-2025-QH15-659899.aspx",
+    "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-sua-doi-2025-so-76-2025-QH15-659899.aspx",
+    "nguon_hieu_luc_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-sua-doi-2025-so-76-2025-QH15-659899.aspx"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-sua-doi-2025-so-76-2025-QH15-659899.aspx"
+    ],
+    "warnings": []
   },
   {
     "so_hieu": "01/2021/NĐ-CP",
     "ten_van_ban": "Nghị định 01/2021/NĐ-CP đăng ký doanh nghiệp",
     "loai": "nghi_dinh",
     "chunks_active": 0,
-    "chunks_total": 14,
-    "su_dung_cho_rag": false,
+    "chunks_inactive": 107,
+    "chunks_total": 107,
+    "rag_status": "none",
+    "has_rag_chunks": false,
+    "all_chunks_used_for_rag": false,
+    "flag_consistency": "all_false",
     "hieu_luc_tu": "04/01/2021",
     "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
     "ngay_het_hieu_luc": "01/07/2025",
-    "nguon_hieu_luc": "https://vbpl.vn/botaichinh/Pages/vbpq-lichsu.aspx?ItemID=153870",
-    "source_url": "https://vbpl.vn/botaichinh/Pages/vbpq-lichsu.aspx?ItemID=153870"
+    "tinh_trang_hieu_luc_values": [
+      "het_hieu_luc_toan_bo"
+    ],
+    "ngay_het_hieu_luc_values": [
+      "01/07/2025"
+    ],
+    "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-01-2021-ND-CP-dang-ky-doanh-nghiep-283247.aspx",
+    "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-01-2021-ND-CP-dang-ky-doanh-nghiep-283247.aspx",
+    "nguon_hieu_luc_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-01-2021-ND-CP-dang-ky-doanh-nghiep-283247.aspx"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-01-2021-ND-CP-dang-ky-doanh-nghiep-283247.aspx"
+    ],
+    "warnings": []
   },
   {
     "so_hieu": "01/2021/TT-BKHĐT",
     "ten_van_ban": "Thông tư 01/2021/TT-BKHĐT hướng dẫn đăng ký doanh nghiệp",
     "loai": "thong_tu",
     "chunks_active": 0,
-    "chunks_total": 10,
-    "su_dung_cho_rag": false,
+    "chunks_inactive": 9,
+    "chunks_total": 9,
+    "rag_status": "none",
+    "has_rag_chunks": false,
+    "all_chunks_used_for_rag": false,
+    "flag_consistency": "all_false",
     "hieu_luc_tu": "01/05/2021",
     "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
     "ngay_het_hieu_luc": "01/07/2025",
-    "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
-    "source_url": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097"
+    "tinh_trang_hieu_luc_values": [
+      "het_hieu_luc_toan_bo"
+    ],
+    "ngay_het_hieu_luc_values": [
+      "01/07/2025"
+    ],
+    "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-01-2021-TT-BKHDT-huong-dan-dang-ky-doanh-nghiep-465911.aspx",
+    "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-01-2021-TT-BKHDT-huong-dan-dang-ky-doanh-nghiep-465911.aspx",
+    "nguon_hieu_luc_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-01-2021-TT-BKHDT-huong-dan-dang-ky-doanh-nghiep-465911.aspx"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-01-2021-TT-BKHDT-huong-dan-dang-ky-doanh-nghiep-465911.aspx"
+    ],
+    "warnings": []
   },
   {
     "so_hieu": "02/2023/TT-BKHĐT",
     "ten_van_ban": "Thông tư 02/2023/TT-BKHĐT sửa đổi Thông tư 01/2021/TT-BKHĐT",
     "loai": "thong_tu",
     "chunks_active": 0,
-    "chunks_total": 13,
-    "su_dung_cho_rag": false,
+    "chunks_inactive": 25,
+    "chunks_total": 25,
+    "rag_status": "none",
+    "has_rag_chunks": false,
+    "all_chunks_used_for_rag": false,
+    "flag_consistency": "all_false",
     "hieu_luc_tu": "01/07/2023",
     "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
     "ngay_het_hieu_luc": "01/07/2025",
-    "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
-    "source_url": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097"
+    "tinh_trang_hieu_luc_values": [
+      "het_hieu_luc_toan_bo"
+    ],
+    "ngay_het_hieu_luc_values": [
+      "01/07/2025"
+    ],
+    "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-02-2023-TT-BKHDT-sua-doi-Thong-tu-01-2021-TT-BKHDT-dang-ky-doanh-nghiep-563848.aspx",
+    "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-02-2023-TT-BKHDT-sua-doi-Thong-tu-01-2021-TT-BKHDT-dang-ky-doanh-nghiep-563848.aspx",
+    "nguon_hieu_luc_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-02-2023-TT-BKHDT-sua-doi-Thong-tu-01-2021-TT-BKHDT-dang-ky-doanh-nghiep-563848.aspx"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-02-2023-TT-BKHDT-sua-doi-Thong-tu-01-2021-TT-BKHDT-dang-ky-doanh-nghiep-563848.aspx"
+    ],
+    "warnings": []
   },
   {
     "so_hieu": "03/2022/QH15",
     "ten_van_ban": "Luật sửa đổi bổ sung Luật Doanh nghiệp 2022",
-    "loai": "luat",
+    "loai": "luat_sua_doi",
     "chunks_active": 0,
-    "chunks_total": 15,
-    "su_dung_cho_rag": false,
+    "chunks_inactive": 12,
+    "chunks_total": 12,
+    "rag_status": "none",
+    "has_rag_chunks": false,
+    "all_chunks_used_for_rag": false,
+    "flag_consistency": "all_false",
     "hieu_luc_tu": "01/03/2022",
     "tinh_trang_hieu_luc": "con_hieu_luc_da_duoc_hop_nhat",
     "ngay_het_hieu_luc": null,
-    "nguon_hieu_luc": "https://congbao.chinhphu.vn/so-do-van-ban-so-03-2022-qh15-36795",
-    "source_url": "https://congbao.chinhphu.vn/so-do-van-ban-so-03-2022-qh15-36795"
+    "tinh_trang_hieu_luc_values": [
+      "con_hieu_luc_da_duoc_hop_nhat"
+    ],
+    "ngay_het_hieu_luc_values": [],
+    "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Dau-tu/Luat-sua-doi-Luat-Dau-tu-cong-Luat-Dau-tu-theo-phuong-thuc-doi-tac-cong-tu-486653.aspx",
+    "source_url": "https://thuvienphapluat.vn/van-ban/Dau-tu/Luat-sua-doi-Luat-Dau-tu-cong-Luat-Dau-tu-theo-phuong-thuc-doi-tac-cong-tu-486653.aspx",
+    "nguon_hieu_luc_values": [
+      "https://thuvienphapluat.vn/van-ban/Dau-tu/Luat-sua-doi-Luat-Dau-tu-cong-Luat-Dau-tu-theo-phuong-thuc-doi-tac-cong-tu-486653.aspx"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Dau-tu/Luat-sua-doi-Luat-Dau-tu-cong-Luat-Dau-tu-theo-phuong-thuc-doi-tac-cong-tu-486653.aspx"
+    ],
+    "warnings": []
   },
   {
     "so_hieu": "59/2020/QH14",
     "ten_van_ban": "Luật Doanh nghiệp 2020",
-    "loai": "luat",
+    "loai": "luat_goc",
     "chunks_active": 0,
-    "chunks_total": 223,
-    "su_dung_cho_rag": false,
+    "chunks_inactive": 219,
+    "chunks_total": 219,
+    "rag_status": "none",
+    "has_rag_chunks": false,
+    "all_chunks_used_for_rag": false,
+    "flag_consistency": "all_false",
     "hieu_luc_tu": "01/01/2021",
     "tinh_trang_hieu_luc": "con_hieu_luc_mot_phan_da_duoc_hop_nhat",
     "ngay_het_hieu_luc": null,
-    "nguon_hieu_luc": "https://vbpl.vn/botainguyen/Pages/vbpq-lichsu.aspx?ItemID=142881",
-    "source_url": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=142847"
+    "tinh_trang_hieu_luc_values": [
+      "con_hieu_luc_mot_phan_da_duoc_hop_nhat"
+    ],
+    "ngay_het_hieu_luc_values": [],
+    "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-so-59-2020-QH14-427301.aspx",
+    "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-so-59-2020-QH14-427301.aspx",
+    "nguon_hieu_luc_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-so-59-2020-QH14-427301.aspx"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-so-59-2020-QH14-427301.aspx"
+    ],
+    "warnings": []
   },
   {
     "so_hieu": "6568/VBHN-BKHĐT",
     "ten_van_ban": "VBHN 6568/VBHN-BKHĐT 2024 thông tư hướng dẫn đăng ký doanh nghiệp",
     "loai": "vb_hop_nhat",
     "chunks_active": 0,
-    "chunks_total": 10,
-    "su_dung_cho_rag": false,
+    "chunks_inactive": 17,
+    "chunks_total": 17,
+    "rag_status": "none",
+    "has_rag_chunks": false,
+    "all_chunks_used_for_rag": false,
+    "flag_consistency": "all_false",
     "hieu_luc_tu": "19/08/2024",
     "tinh_trang_hieu_luc": "khong_dung_cho_hien_hanh_do_van_ban_goc_het_hieu_luc",
     "ngay_het_hieu_luc": "01/07/2025",
-    "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
-    "source_url": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097"
+    "tinh_trang_hieu_luc_values": [
+      "khong_dung_cho_hien_hanh_do_van_ban_goc_het_hieu_luc"
+    ],
+    "ngay_het_hieu_luc_values": [
+      "01/07/2025"
+    ],
+    "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-6568-VBHN-BKHDT-2024-Thong-tu-huong-dan-dang-ky-doanh-nghiep-622234.aspx",
+    "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-6568-VBHN-BKHDT-2024-Thong-tu-huong-dan-dang-ky-doanh-nghiep-622234.aspx",
+    "nguon_hieu_luc_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-6568-VBHN-BKHDT-2024-Thong-tu-huong-dan-dang-ky-doanh-nghiep-622234.aspx"
+    ],
+    "source_url_values": [
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-6568-VBHN-BKHDT-2024-Thong-tu-huong-dan-dang-ky-doanh-nghiep-622234.aspx"
+    ],
+    "warnings": []
   }
 ]

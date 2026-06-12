@@ -7,11 +7,20 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from importlib import import_module
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+
+def configure_console_encoding() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8")
+
 
 
 DEFAULT_EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
@@ -134,6 +143,12 @@ def build_vectors(
 def save_vectorstore(records: list[VectorRecord], manifest: dict[str, Any], output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Backup file cũ trước khi ghi đè
+    if output_path.exists():
+        backup_path = output_path.with_suffix(".json.bak")
+        output_path.rename(backup_path)
+        print(f"Đã backup vectorstore cũ sang {backup_path}")
+
     payload = {
         "manifest": manifest,
         "documents": [
@@ -152,15 +167,40 @@ def save_vectorstore(records: list[VectorRecord], manifest: dict[str, Any], outp
 
 
 def main() -> None:
+    configure_console_encoding()
     args = parse_args()
     input_path = Path(args.input)
     output_path = Path(args.output)
 
     chunks, skipped_inactive = load_chunks(input_path, args.include_inactive)
+
+    # Guard: dừng sớm nếu không có chunk nào để embed, tránh ghi đè vectorstore cũ
+    if not chunks:
+        print("[LỖI] Không có chunk nào để embed.")
+        if skipped_inactive:
+            print(f"       Đã bỏ qua {skipped_inactive} chunk có su_dung_cho_rag=false.")
+            print("       → Dùng --include-inactive nếu muốn embed toàn bộ.")
+            print("       → Hoặc kiểm tra lại trường su_dung_cho_rag trong legal_chunks.json.")
+        print("Vectorstore cũ KHÔNG bị thay đổi.")
+        return
+
+    # Thêm cảnh báo nếu số lượng chunk quá ít
+    if len(chunks) < 50:
+        print(f"\n[⚠️ CẢNH BÁO] Số lượng active chunks quá ít ({len(chunks)} chunks).")
+        print("              Dữ liệu nguồn RAG có thể bị lỗi hoặc bị thiếu!\n")
+
+    # In thống kê dữ liệu
+    doc_counter = Counter(chunk.get("so_hieu", "Không rõ số hiệu") for chunk in chunks)
+    print(f"📊 Thống kê các văn bản được nhúng vào Vectorstore:")
+    for so_hieu, count in doc_counter.items():
+        print(f"   - {so_hieu:20s}: {count:>4} chunks")
+    print(f"   Tổng cộng: {len(chunks)} active chunks (Đã bỏ qua {skipped_inactive} inactive chunks)\n")
+
     try:
         records, manifest = build_vectors(chunks, args.model, args.batch_size)
     except RuntimeError as exc:
         raise SystemExit(str(exc)) from exc
+
     save_vectorstore(records, manifest, output_path)
 
     print(f"Loaded {len(chunks)} chunks from {input_path}")

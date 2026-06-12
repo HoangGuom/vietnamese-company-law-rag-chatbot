@@ -16,7 +16,7 @@ Cài: pip install selenium webdriver-manager pdfplumber
 Chạy: python selenium_crawler.py
 """
 
-import os, re, json, time, random, sys, unicodedata
+import os, re, json, time, random, sys, unicodedata, shutil, argparse
 import pdfplumber
 import requests
 from pathlib import Path
@@ -29,12 +29,9 @@ from selenium import webdriver
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.edge.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
-
 
 # ============================================================
 # DANH SÁCH VĂN BẢN CẦN CRAWL (cập nhật đến 30/05/2026)
@@ -48,10 +45,10 @@ LAW_LIST = [
         "hieu_luc": "01/07/2025",
         "tinh_trang_hieu_luc": "van_ban_hop_nhat_hien_hanh",
         "ngay_het_hieu_luc": None,
-        "nguon_hieu_luc": "https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-67-vbhn-vpqh-45865/58269.htm",
+        "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-67-VBHN-VPQH-2025-Luat-Doanh-nghiep-671127.aspx",
         "su_dung_cho_rag": True,
         "tu_khoa_tim": "67/VBHN-VPQH luật doanh nghiệp",
-        "url_truc_tiep": "https://congbao.chinhphu.vn/van-ban/van-ban-hop-nhat-so-67-vbhn-vpqh-45865/58269.htm",
+        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-67-VBHN-VPQH-2025-Luat-Doanh-nghiep-671127.aspx",
         "uu_tien": 1,
     },
     {
@@ -61,10 +58,10 @@ LAW_LIST = [
         "hieu_luc": "01/07/2025",
         "tinh_trang_hieu_luc": "con_hieu_luc",
         "ngay_het_hieu_luc": None,
-        "nguon_hieu_luc": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-76-2025-qh15-45505-57569?format=doc",
+        "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-sua-doi-2025-so-76-2025-QH15-659899.aspx",
         "su_dung_cho_rag": True,
         "tu_khoa_tim": "76/2025/QH15 luật doanh nghiệp",
-        "url_truc_tiep": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-76-2025-qh15-45505-57569?format=doc",
+        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-sua-doi-2025-so-76-2025-QH15-659899.aspx",
         "uu_tien": 2,
     },
     {
@@ -87,10 +84,10 @@ LAW_LIST = [
         "hieu_luc": "01/07/2025",
         "tinh_trang_hieu_luc": "con_hieu_luc",
         "ngay_het_hieu_luc": None,
-        "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=179097",
+        "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx",
         "su_dung_cho_rag": True,
         "tu_khoa_tim": "68/2025/TT-BTC biểu mẫu đăng ký doanh nghiệp",
-        "url_truc_tiep": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=179097",
+        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx",
         "uu_tien": 4,
     },
     {
@@ -100,10 +97,10 @@ LAW_LIST = [
         "hieu_luc": "01/01/2021",
         "tinh_trang_hieu_luc": "con_hieu_luc_mot_phan_da_duoc_hop_nhat",
         "ngay_het_hieu_luc": None,
-        "nguon_hieu_luc": "https://vbpl.vn/botainguyen/Pages/vbpq-lichsu.aspx?ItemID=142881",
+        "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-so-59-2020-QH14-427301.aspx",
         "su_dung_cho_rag": False,
         "tu_khoa_tim": "59/2020/QH14 luật doanh nghiệp",
-        "url_truc_tiep": "https://vbpl.vn/TW/Pages/vbpq-thuoctinh.aspx?ItemID=142847",
+        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Luat-Doanh-nghiep-so-59-2020-QH14-427301.aspx",
         "uu_tien": 20,
     },
     {
@@ -113,10 +110,10 @@ LAW_LIST = [
         "hieu_luc": "01/03/2022",
         "tinh_trang_hieu_luc": "con_hieu_luc_da_duoc_hop_nhat",
         "ngay_het_hieu_luc": None,
-        "nguon_hieu_luc": "https://congbao.chinhphu.vn/so-do-van-ban-so-03-2022-qh15-36795",
+        "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Dau-tu/Luat-sua-doi-Luat-Dau-tu-cong-Luat-Dau-tu-theo-phuong-thuc-doi-tac-cong-tu-486653.aspx",
         "su_dung_cho_rag": False,
         "tu_khoa_tim": "03/2022/QH15 sửa đổi doanh nghiệp",
-        "url_truc_tiep": "https://congbao.chinhphu.vn/so-do-van-ban-so-03-2022-qh15-36795",
+        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Dau-tu/Luat-sua-doi-Luat-Dau-tu-cong-Luat-Dau-tu-theo-phuong-thuc-doi-tac-cong-tu-486653.aspx",
         "uu_tien": 21,
     },
     {
@@ -126,10 +123,10 @@ LAW_LIST = [
         "hieu_luc": "04/01/2021",
         "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
         "ngay_het_hieu_luc": "01/07/2025",
-        "nguon_hieu_luc": "https://vbpl.vn/botaichinh/Pages/vbpq-lichsu.aspx?ItemID=153870",
+        "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-01-2021-ND-CP-dang-ky-doanh-nghiep-283247.aspx",
         "su_dung_cho_rag": False,
         "tu_khoa_tim": "01/2021/NĐ-CP đăng ký doanh nghiệp",
-        "url_truc_tiep": "https://vbpl.vn/botaichinh/Pages/vbpq-lichsu.aspx?ItemID=153870",
+        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Nghi-dinh-01-2021-ND-CP-dang-ky-doanh-nghiep-283247.aspx",
         "uu_tien": 30,
         "expected_min_articles": 80,
     },
@@ -140,10 +137,10 @@ LAW_LIST = [
         "hieu_luc": "01/05/2021",
         "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
         "ngay_het_hieu_luc": "01/07/2025",
-        "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-01-2021-TT-BKHDT-huong-dan-dang-ky-doanh-nghiep-465911.aspx",
         "su_dung_cho_rag": False,
         "tu_khoa_tim": "01/2021/TT-BKHĐT hướng dẫn đăng ký doanh nghiệp",
-        "url_truc_tiep": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-01-2021-TT-BKHDT-huong-dan-dang-ky-doanh-nghiep-465911.aspx",
         "uu_tien": 31,
     },
     {
@@ -153,10 +150,10 @@ LAW_LIST = [
         "hieu_luc": "01/07/2023",
         "tinh_trang_hieu_luc": "het_hieu_luc_toan_bo",
         "ngay_het_hieu_luc": "01/07/2025",
-        "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-02-2023-TT-BKHDT-sua-doi-Thong-tu-01-2021-TT-BKHDT-dang-ky-doanh-nghiep-563848.aspx",
         "su_dung_cho_rag": False,
         "tu_khoa_tim": "02/2023/TT-BKHĐT sửa đổi Thông tư 01/2021/TT-BKHĐT",
-        "url_truc_tiep": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-02-2023-TT-BKHDT-sua-doi-Thong-tu-01-2021-TT-BKHDT-dang-ky-doanh-nghiep-563848.aspx",
         "uu_tien": 32,
     },
     {
@@ -166,7 +163,7 @@ LAW_LIST = [
         "hieu_luc": "19/08/2024",
         "tinh_trang_hieu_luc": "khong_dung_cho_hien_hanh_do_van_ban_goc_het_hieu_luc",
         "ngay_het_hieu_luc": "01/07/2025",
-        "nguon_hieu_luc": "https://vbpl.vn/TW/Pages/vbpq-luocdo.aspx?ItemID=179097",
+        "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-6568-VBHN-BKHDT-2024-Thong-tu-huong-dan-dang-ky-doanh-nghiep-622234.aspx",
         "su_dung_cho_rag": False,
         "tu_khoa_tim": "6568/VBHN-BKHĐT hướng dẫn đăng ký doanh nghiệp",
         "url_truc_tiep": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Van-ban-hop-nhat-6568-VBHN-BKHDT-2024-Thong-tu-huong-dan-dang-ky-doanh-nghiep-622234.aspx",
@@ -315,18 +312,105 @@ def _resolve_url(href: str, base_url: str) -> str:
 
 
 # ============================================================
-# BƯỚC A: TÌM KIẾM VĂN BẢN TRÊN VBPL.VN
+# BƯỚC A: TÌM KIẾM VĂN BẢN + VALIDATION + TVPL FALLBACK
 # ============================================================
+
+
+def _validate_legal_content(text: str) -> bool:
+    """Kiểm tra nội dung có phải văn bản pháp luật thật hay không.
+
+    Phát hiện các trường hợp:
+    - Trang lỗi "Trang không tồn tại" (vbpl.vn dead links)
+    - Trang chủ congbao.chinhphu.vn (PDF viewer, chỉ lấy được navigation)
+    - Nội dung quá ngắn hoặc không chứa Điều luật nào
+    """
+    if not text or len(text) < 500:
+        return False
+
+    # Kiểm tra pattern trang lỗi / trang rác
+    garbage_patterns = [
+        "Trang không tồn tại",
+        "TRANG CHỦ\nCÔNG BÁO\nVĂN BẢN ĐĂNG CÔNG BÁO",
+        "VĂN BẢN BAN HÀNH ĐƯỢC ĐĂNG CÔNG BÁO",
+    ]
+    text_head = text[:3000]
+    for pattern in garbage_patterns:
+        if pattern in text_head:
+            print(f"  ⚠️  Phát hiện nội dung rác: '{pattern[:50]}...'")
+            return False
+
+    # Kiểm tra có ít nhất 1 "Điều" trong nội dung
+    dieu_count = len(re.findall(r"Điều\s+\d+", text))
+    if dieu_count < 1:
+        print(f"  ⚠️  Không tìm thấy 'Điều' nào trong nội dung ({len(text):,} ký tự)")
+        return False
+
+    return True
+
+
+def _tim_tren_thuvienphapluat(driver: webdriver.Edge, law: dict) -> Optional[str]:
+    """Tìm văn bản trên thuvienphapluat.vn, trả về URL trang toàn văn."""
+    from urllib.parse import quote
+
+    keyword = law.get("tu_khoa_tim", law["so_hieu"])
+    search_url = f"https://thuvienphapluat.vn/page/tim-van-ban.aspx?keyword={quote(keyword)}"
+
+    print(f"  🔍 Tìm trên thuvienphapluat.vn: {keyword}")
+    try:
+        driver.get(search_url)
+        delay(3, 5)
+
+        # Thử nhiều CSS selector cho trang kết quả tìm kiếm TVPL
+        selectors = [
+            "p.nqTitle a[href*='/van-ban/']",
+            "div.content-area a[href*='/van-ban/']",
+            "div.search-result a[href*='/van-ban/']",
+            "a[href*='thuvienphapluat.vn/van-ban/']",
+            "div.nqContent a[href*='/van-ban/']",
+        ]
+        for sel in selectors:
+            try:
+                results = driver.find_elements(By.CSS_SELECTOR, sel)
+                for result in results:
+                    href = result.get_attribute("href")
+                    if not href or "/van-ban/" not in href:
+                        continue
+                    text = (result.text or "").strip()
+                    if not text or len(text) < 5:
+                        continue
+                    # Kiểm tra kết quả có liên quan đến văn bản cần tìm
+                    so_hieu_lower = law["so_hieu"].lower()
+                    text_lower = text.lower()
+                    if (so_hieu_lower in text_lower
+                            or "doanh nghiệp" in text_lower
+                            or "đăng ký" in text_lower):
+                        print(f"  → Tìm thấy: {text[:70]}")
+                        print(f"  → URL: {href[:90]}")
+                        return href
+            except Exception:
+                continue
+
+        print(f"  ⚠️  Không tìm thấy kết quả phù hợp trên TVPL")
+    except Exception as e:
+        print(f"  ⚠️  Lỗi tìm kiếm TVPL: {e}")
+
+    return None
+
 
 def tim_kiem_van_ban(driver: webdriver.Edge, law: dict) -> Optional[str]:
     """
     Trả về URL nguồn chính thức đã kiểm chứng.
-    Script hiện không phụ thuộc vào trang tìm kiếm vbpl.vn vì trang đó bị chặn với automation.
+    Ưu tiên: url_truc_tiep → tìm trên thuvienphapluat.vn.
     """
     direct_url = law.get("url_truc_tiep")
     if direct_url:
         print(f"  → Dùng URL trực tiếp: {direct_url}")
         return direct_url
+
+    # Fallback: tìm trên thuvienphapluat.vn
+    tvpl_url = _tim_tren_thuvienphapluat(driver, law)
+    if tvpl_url:
+        return tvpl_url
 
     return None
 
@@ -824,25 +908,75 @@ def validate_all_chunks(chunks: list[LegalChunk]) -> bool:
 
 
 # ============================================================
-# LƯU KẾT QUẢ
+# LƯU KẾT QUẢ (MERGE thay vì OVERWRITE)
 # ============================================================
 
-def save_chunks(chunks: list[LegalChunk]):
-    validate_all_chunks(chunks)
-    data = [asdict(c) for c in chunks]
+def save_chunks(new_chunks: list[LegalChunk], clean: bool = False):
+    """Lưu chunks ra file JSON.
+
+    Mặc định MERGE với dữ liệu cũ theo từng văn bản (so_hieu).
+    Dùng clean=True để ghi đè hoàn toàn.
+    """
+    validate_all_chunks(new_chunks)
+    new_data = [asdict(c) for c in new_chunks]
+
+    if clean or not Path(OUTPUT_JSON).exists():
+        # Ghi mới hoàn toàn
+        merged = new_data
+        print(f"📝 Ghi mới {len(merged)} chunks")
+    else:
+        # MERGE: đọc dữ liệu cũ, thay thế theo từng văn bản (so_hieu)
+        with open(OUTPUT_JSON, "r", encoding="utf-8") as f:
+            existing = json.load(f)
+
+        # Backup trước khi thay đổi
+        backup_path = OUTPUT_JSON + ".bak"
+        shutil.copy2(OUTPUT_JSON, backup_path)
+        print(f"📦 Đã backup dữ liệu cũ → {backup_path} ({len(existing)} chunks)")
+
+        # Gom theo so_hieu
+        existing_by_doc: dict[str, list] = {}
+        for chunk in existing:
+            existing_by_doc.setdefault(chunk["so_hieu"], []).append(chunk)
+
+        new_by_doc: dict[str, list] = {}
+        for chunk in new_data:
+            new_by_doc.setdefault(chunk["so_hieu"], []).append(chunk)
+
+        # Merge: giữ cũ + ghi đè bằng mới
+        merged_by_doc = dict(existing_by_doc)
+        for so_hieu, chunks in new_by_doc.items():
+            old_count = len(merged_by_doc.get(so_hieu, []))
+            merged_by_doc[so_hieu] = chunks
+            if old_count > 0:
+                print(f"  🔄 {so_hieu}: {old_count} → {len(chunks)} chunks (cập nhật)")
+            else:
+                print(f"  ➕ {so_hieu}: {len(chunks)} chunks (mới)")
+
+        merged = []
+        for doc_chunks in merged_by_doc.values():
+            merged.extend(doc_chunks)
+
     with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(merged, f, ensure_ascii=False, indent=2)
 
     size_kb = Path(OUTPUT_JSON).stat().st_size / 1024
     print(f"\n{'='*55}")
-    print(f"✅ Đã lưu {len(chunks)} chunks → {OUTPUT_JSON} ({size_kb:.1f} KB)")
+    print(f"✅ Đã lưu {len(merged)} chunks → {OUTPUT_JSON} ({size_kb:.1f} KB)")
 
-    count = Counter(c.ten_van_ban for c in chunks)
+    count = Counter(
+        c["ten_van_ban"] if isinstance(c, dict) else c.ten_van_ban
+        for c in merged
+    )
     print(f"\n📊 Thống kê:")
     for name, n in count.items():
-        print(f"   {n:>4} Điều  ←  {name}")
+        print(f"   {n:>4} chunks  ←  {name}")
 
-    avg = sum(len(c.noi_dung) for c in chunks) / max(len(chunks), 1)
+    noi_dung_lens = [
+        len(c["noi_dung"] if isinstance(c, dict) else c.noi_dung)
+        for c in merged
+    ]
+    avg = sum(noi_dung_lens) / max(len(merged), 1)
     print(f"\n   Trung bình: {avg:.0f} ký tự/chunk")
     print(f"\n→ Bước tiếp: python step2_build_vectorstore.py")
 
@@ -853,19 +987,32 @@ def save_chunks(chunks: list[LegalChunk]):
 
 def main():
     configure_console_encoding()
+
+    parser = argparse.ArgumentParser(description="Crawl luật doanh nghiệp VN")
+    parser.add_argument("--clean", action="store_true",
+                        help="Xóa sạch legal_chunks.json và crawl lại từ đầu (mặc định: merge)")
+    parser.add_argument("--headless", action="store_true",
+                        help="Chạy headless (không hiện trình duyệt)")
+    args = parser.parse_args()
+
     print("=" * 55)
     print("CRAWL LUẬT DOANH NGHIỆP VN — EDGE SELENIUM")
     print("Phạm vi: tất cả văn bản đến 30/05/2026")
+    if args.clean:
+        print("⚠️  Chế độ CLEAN: sẽ ghi đè toàn bộ legal_chunks.json")
+    else:
+        print("📎 Chế độ MERGE: giữ dữ liệu cũ, cập nhật mới")
     print("=" * 55)
 
     laws = sorted(LAW_LIST, key=lambda x: x["uu_tien"])
 
     print(f"\nDanh sách {len(laws)} văn bản cần crawl:")
     for law in laws:
-        print(f"  [{law['uu_tien']}] {law['so_hieu']:25s} — {law['ten'][:45]}")
+        rag_icon = "✅" if law.get("su_dung_cho_rag") else "⛔"
+        print(f"  [{law['uu_tien']}] {rag_icon} {law['so_hieu']:25s} — {law['ten'][:45]}")
 
-    print("\nMở Edge... (headless=False → thấy trình duyệt thao tác)")
-    driver = create_driver(headless=False)
+    print(f"\nMở Edge... (headless={args.headless})")
+    driver = create_driver(headless=args.headless)
     all_chunks: list[LegalChunk] = []
 
     try:
@@ -889,6 +1036,23 @@ def main():
                 continue
 
             raw_text = extract_text(file_path)
+
+            # Validate: phát hiện trang lỗi, trang rác, nội dung không phải luật
+            if not _validate_legal_content(raw_text):
+                print(f"  ⚠️  Nội dung từ URL gốc không hợp lệ, thử tìm trên TVPL...")
+                tvpl_url = _tim_tren_thuvienphapluat(driver, law)
+                if tvpl_url and tvpl_url != url:
+                    driver.get(tvpl_url)
+                    delay(2, 3)
+                    file_path_2 = bam_tai_ve(driver, law)
+                    if file_path_2:
+                        raw_text = extract_text(file_path_2)
+                        file_path = file_path_2
+                        url = tvpl_url
+                if not _validate_legal_content(raw_text):
+                    print(f"  ❌ Vẫn không lấy được nội dung hợp lệ, bỏ qua")
+                    continue
+
             if not raw_text or len(raw_text) < 500:
                 print(f"  ❌ Text quá ngắn ({len(raw_text)} ký tự), bỏ qua")
                 continue
@@ -913,10 +1077,11 @@ def main():
         driver.quit()
 
     if all_chunks:
-        save_chunks(all_chunks)
+        save_chunks(all_chunks, clean=args.clean)
     else:
         print("\n❌ Không có dữ liệu nào được crawl.")
         print("   Kiểm tra kết nối mạng và thử lại.")
+        print("   Dữ liệu cũ trong legal_chunks.json KHÔNG bị thay đổi.")
 
 
 if __name__ == "__main__":
