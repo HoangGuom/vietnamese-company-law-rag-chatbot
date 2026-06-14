@@ -3,7 +3,7 @@ services:
   ollama:
     image: ollama/ollama:latest
     ports:
-      - "11434:11434"
+      - "127.0.0.1:11434:11434"
     volumes:
       # Model lưu vào volume, tồn tại giữa các lần restart
       # Lần đầu pull qwen3:4b ~2.5GB, từ lần 2 trở đi dùng cache
@@ -44,7 +44,7 @@ services:
       ollama-pull:
         condition: service_completed_successfully
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       OLLAMA_URL: http://ollama:11434
       QWEN_MODEL: ${QWEN_MODEL:-qwen3:4b}

@@ -175,13 +175,24 @@ ask.onclick = async () => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Request failed');
     answer.textContent = data.answer;
-    sources.innerHTML = data.sources.map(src => `
-      <div class="source">
-        <b>${src.source}</b>
-        <div class="score">score=${src.score.toFixed(4)} · chunk_id=${src.chunk_id}</div>
-        <div class="snippet">${src.text.slice(0, 900).replaceAll('\\n', ' ')}</div>
-      </div>
-    `).join('');
+    for (const src of data.sources) {
+      const item = document.createElement('div');
+      item.className = 'source';
+
+      const sourceTitle = document.createElement('b');
+      sourceTitle.textContent = src.source;
+
+      const score = document.createElement('div');
+      score.className = 'score';
+      score.textContent = `score=${src.score.toFixed(4)} · chunk_id=${src.chunk_id}`;
+
+      const snippet = document.createElement('div');
+      snippet.className = 'snippet';
+      snippet.textContent = src.text.slice(0, 900).replaceAll('\\n', ' ');
+
+      item.append(sourceTitle, score, snippet);
+      sources.appendChild(item);
+    }
   } catch (err) {
     answer.textContent = String(err.message || err);
   } finally {
@@ -202,7 +213,6 @@ def health() -> dict[str, Any]:
         "documents": len(state.get("documents", [])),
         "embedding_model": state.get("manifest", {}).get("embedding_model"),
         "qwen_model": QWEN_MODEL,
-        "ollama_url": OLLAMA_URL,
     }
 
 

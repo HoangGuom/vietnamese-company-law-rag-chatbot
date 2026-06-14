@@ -5,3 +5,7 @@ __pycache__
 *.pyc
 downloads
 .env
+.env.*
+drivers
+.cache
+*.log

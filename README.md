@@ -1,4 +1,4 @@
-# Vietnamese Company Law RAG Chatbot
+# ⚖️ Vietnamese Company Law RAG Chatbot
 
 Chatbot tra cứu pháp luật doanh nghiệp Việt Nam bằng RAG (Retrieval-Augmented Generation), sử dụng Qwen qua Ollama, embedding đa ngôn ngữ và vectorstore local.
 
@@ -7,19 +7,19 @@ Chatbot tra cứu pháp luật doanh nghiệp Việt Nam bằng RAG (Retrieval-A
 ![Ollama](https://img.shields.io/badge/Ollama-Qwen-black)
 ![Docker](https://img.shields.io/badge/Docker-supported-blue)
 
-## Features
+## 🌟 Features
 
-- Tra cứu luật doanh nghiệp bằng tiếng Việt với nguồn trích dẫn.
-- RAG local: dữ liệu pháp luật được chunk, embed và lưu trong `vectorstore/legal_vectorstore.json`.
-- Chạy được bằng Docker hoặc Python local.
-- Dùng Qwen qua Ollama, không cần API key cloud.
-- Có web UI local tại `http://localhost:8000`.
-- Có CLI để debug retrieval và test câu hỏi nhanh.
-- Có audit dữ liệu để biết văn bản nào đang active/inactive.
-- Có pipeline riêng để ingest biểu mẫu DOCX của `68/2025/TT-BTC`.
-- Docker mặc định chạy CPU-safe; GPU NVIDIA dùng file override riêng.
+- 📚 **Tra cứu luật doanh nghiệp tiếng Việt** với nguồn trích dẫn rõ ràng.
+- 🧠 **RAG local**: dữ liệu pháp luật được chunk, embed và lưu trong `vectorstore/legal_vectorstore.json`.
+- 🐳 **Chạy bằng Docker hoặc Python local** trên máy mới.
+- 🔐 **Không cần API key cloud**: Qwen chạy local qua Ollama.
+- 💬 **Web UI local** tại `http://localhost:8000`.
+- 🧪 **CLI debug retrieval** và test câu hỏi nhanh.
+- 📊 **Audit dữ liệu** để biết văn bản nào đang active/inactive.
+- 🧾 **Pipeline ingest biểu mẫu DOCX** của `68/2025/TT-BTC`.
+- ⚙️ **CPU-safe by default**; GPU NVIDIA dùng file override riêng.
 
-## Architecture
+## 🏗️ Architecture
 
 ```text
 ┌──────────────────────┐
@@ -61,7 +61,7 @@ step2_build_vectorstore.py
 vectorstore/legal_vectorstore.json
 ```
 
-## Core Components
+## 🔧 Core Components
 
 | File | Vai trò |
 |---|---|
@@ -74,7 +74,7 @@ vectorstore/legal_vectorstore.json
 | `docker-compose.yml` | Chạy Ollama + web app bằng Docker CPU-safe |
 | `docker-compose.gpu.yml` | Override để dùng NVIDIA GPU |
 
-## Quick Start With Docker
+## 🚀 Quick Start With Docker
 
 Docker là cách dễ nhất để chạy sản phẩm trên máy mới.
 
@@ -94,6 +94,8 @@ Mở trình duyệt:
 ```text
 http://localhost:8000
 ```
+
+Docker compose mặc định chỉ bind web app và Ollama vào `127.0.0.1` để tránh vô tình mở chatbot/model ra mạng ngoài.
 
 Lần đầu chạy có thể mất khoảng 10 phút vì Docker cần build image và pull model `qwen3:4b`. Từ lần sau, model được cache trong Docker volume `ollama_data`.
 
@@ -138,7 +140,7 @@ Bash:
 QWEN_MODEL=qwen3:8b docker compose up --build
 ```
 
-## Local Installation
+## 💻 Local Installation
 
 Use this path when you want to develop, debug retrieval, or rebuild data.
 
@@ -185,7 +187,7 @@ Run the web app:
 .venv/bin/python -m uvicorn rag_web_app:app --host 0.0.0.0 --port 8000
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 | Variable | Default | Mô tả |
 |---|---|---|
@@ -195,7 +197,16 @@ Run the web app:
 
 Repo này không cần OpenAI API key hoặc API key cloud. Qwen chạy local qua Ollama.
 
-## Usage Guide
+## 🔐 Security & Privacy Notes
+
+- ✅ Repo không cần OpenAI/Gemini/Anthropic API key hoặc secret cloud để chạy mặc định.
+- ✅ `.env`, `.env.*`, `downloads/`, `drivers/`, cache và log runtime đã được ignore.
+- ✅ Docker compose mặc định chỉ publish `8000` và `11434` trên `127.0.0.1`.
+- ✅ Web UI render nguồn truy xuất bằng text node, tránh HTML injection từ nội dung chunk.
+- ⚠️ Không nên public app trực tiếp lên internet nếu chưa thêm authentication/rate limit.
+- ⚠️ `/api/retrieve` trả về full text chunk và metadata. Hiện dữ liệu là văn bản pháp luật public; nếu sau này ingest tài liệu nội bộ thì cần thêm phân quyền trước khi deploy.
+
+## 📖 Usage Guide
 
 ### Web Chat
 
@@ -239,7 +250,7 @@ Retrieve only, useful for debugging chunks:
 .\.venv\Scripts\python.exe step3_rag_chatbot.py --retrieve-only --question "Mẫu số 2 Phụ lục II đăng ký thay đổi hộ kinh doanh gồm những mục nào?"
 ```
 
-## Data Pipeline
+## 🧱 Data Pipeline
 
 Vectorstore đã được commit sẵn, nên người dùng chỉ muốn chạy chatbot không cần chạy pipeline này.
 
@@ -314,7 +325,7 @@ Important: whenever `legal_chunks.json` changes, run `step2_build_vectorstore.py
 .\.venv\Scripts\python.exe -m uvicorn rag_web_app:app --host 0.0.0.0 --port 8000
 ```
 
-## API Reference
+## 🔌 API Reference
 
 | Endpoint | Method | Mô tả |
 |---|---|---|
@@ -332,7 +343,7 @@ curl -X POST http://localhost:8000/api/chat \
   -d '{"question": "Ai không được thành lập doanh nghiệp?", "top_k": 5}'
 ```
 
-## Legal Data Coverage
+## 📚 Legal Data Coverage
 
 Active vectorstore hiện có:
 
@@ -367,7 +378,7 @@ downloads/tt68_forms_coverage.json
 
 Lưu ý quan trọng: PDF chính thức của TT68 là dạng scan/image, OCR tiếng Việt chưa đủ tin cậy để đưa thẳng vào RAG pháp luật từng câu từng chữ. Vì vậy repo chỉ ingest các DOCX chính thức tìm được, tránh đưa dữ liệu OCR sai vào chatbot.
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```text
 vietnamese-company-law-rag-chatbot/
@@ -392,7 +403,7 @@ vietnamese-company-law-rag-chatbot/
     └── tt68_forms_coverage.json
 ```
 
-## Testing Your Setup
+## 🧪 Testing Your Setup
 
 Test Ollama:
 
@@ -414,7 +425,7 @@ Test retrieval only:
 
 Expected behavior: top retrieved chunks should include `68_2025_tt_btc_phu_luc_i_mau_01`.
 
-## Troubleshooting
+## 🛠️ Troubleshooting
 
 ### Docker is slow on CPU
 
@@ -462,14 +473,14 @@ Or in Docker:
 docker compose up --build
 ```
 
-## Deployment Notes
+## 🚢 Deployment Notes
 
-For local/LAN use:
+For local use:
 
 ```text
-http://<IP-may-host>:8000
+http://localhost:8000
 ```
 
-Make sure port `8000` is allowed through the firewall.
+Docker compose mặc định bind vào localhost. Nếu thật sự muốn dùng trong LAN, đổi port mapping thành `"8000:8000"` và đảm bảo firewall chỉ mở cho mạng tin cậy.
 
 For production, place the app behind a reverse proxy, add authentication, and review legal-data update procedures carefully before exposing it publicly.
