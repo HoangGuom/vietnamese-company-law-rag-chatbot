@@ -59,9 +59,9 @@
     "so_hieu": "68/2025/TT-BTC",
     "ten_van_ban": "Thông tư 68/2025/TT-BTC biểu mẫu đăng ký doanh nghiệp, đăng ký hộ kinh doanh",
     "loai": "thong_tu",
-    "chunks_active": 5,
+    "chunks_active": 53,
     "chunks_inactive": 0,
-    "chunks_total": 5,
+    "chunks_total": 53,
     "rag_status": "all",
     "has_rag_chunks": true,
     "all_chunks_used_for_rag": true,
@@ -76,12 +76,48 @@
     "nguon_hieu_luc": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx",
     "source_url": "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx",
     "nguon_hieu_luc_values": [
-      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx"
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx",
+      "https://vanban.chinhphu.vn/?docid=214411&pageid=27160"
     ],
     "source_url_values": [
-      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx"
+      "https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-68-2025-TT-BTC-bieu-mau-su-dung-trong-dang-ky-doanh-nghiep-663263.aspx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/7_24_2025_16_15_470_mau-so-1---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/7_24_2025_57_36_477_mau-so-2---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/7_24_2025_5_27_181_mau-so-3---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/7_24_2025_4_38_741_mau-so-4---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/7_24_2025_25_4_296_mau-so-5---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_6_2025_57_37_268_mau-so-6---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_7_2025_30_51_136_mau-so-7---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_7_2025_33_52_814_mau-so-8---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/7_24_2025_25_4_343_mau-so-9---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_6_2025_21_16_957_mau-so-10---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_6_2025_33_49_472_mau-11--phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_7_2025_46_42_514_mau-so-12---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_6_2025_9_50_199_mau-so-13---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_5_2025_21_17_283_mau-so-14---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_5_2025_58_42_472_mau-so-15---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_5_2025_32_14_636_mau-so-16---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_8_2025_9_10_751_mau-17---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_8_2025_14_9_447_mau-19---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_6_2025_42_10_404_mau-so-26---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_6_2025_47_32_990_mau-so-27---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_8_2025_40_35_788_mau-28---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_8_2025_40_53_999_mau-29--phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_6_2025_43_21_732_mau-so-30---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_6_2025_44_57_586_mau-so-31---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_8_2025_4_2_188_mau-33---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_8_2025_9_29_596_mau-34--phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_8_2025_9_57_996_mau-35---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_8_2025_16_22_781_mau-79---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/8_8_2025_33_14_753_mau-80---phu-luc-i.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/10_15_2025_49_40_790_mau-so-2---giay-de-nghi-dang-ky-thay-doi-noi-dung-dang-ky-ho-kinh-doanh.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/7_28_2025_58_51_543_mau-so-3---giay-de-nghi-tam-ngung-kinh-doanh--tiep-tuc-hoat-dong.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/7_28_2025_4_40_345_mau-so-4---thong-bao-cham-dut-hoat-dong-ho-kinh-doanh.docx",
+      "https://dangkykinhdoanh.gov.vn/Images/FileVanBan/7_29_2025_45_45_967_mau-so-5---giay-de-nghi-cap-lai-gcn.docx"
     ],
-    "warnings": []
+    "warnings": [
+      "Các chunk cùng số hiệu có nhiều source_url khác nhau."
+    ]
   },
   {
     "so_hieu": "76/2025/QH15",

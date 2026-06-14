@@ -16,12 +16,20 @@ Chạy sau mỗi lần crawl xong:
 from __future__ import annotations
 
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
 CHUNKS_PATH = Path("legal_chunks.json")
 AUDIT_PATH = Path("legal_sources_audit.json")
+
+
+def configure_console_encoding() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8")
 
 
 def unique_values(group: list[dict[str, Any]], key: str) -> list[Any]:
@@ -142,6 +150,7 @@ def generate_audit(
     chunks_path: Path = CHUNKS_PATH,
     audit_path: Path = AUDIT_PATH,
 ) -> None:
+    configure_console_encoding()
     if not chunks_path.exists():
         raise FileNotFoundError(
             f"Không tìm thấy {chunks_path}. Hãy chạy selenium_crawler.py trước."

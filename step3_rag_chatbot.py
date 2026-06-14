@@ -13,6 +13,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 from dataclasses import dataclass
 from importlib import import_module
 from pathlib import Path
@@ -113,6 +114,74 @@ def encode_query(model: Any, question: str, model_name: str) -> np.ndarray:
     return np.array(vector, dtype=np.float32)
 
 
+def normalize_for_match(text: str) -> str:
+    no_accents = "".join(
+        char
+        for char in unicodedata.normalize("NFD", text)
+        if unicodedata.category(char) != "Mn"
+    )
+    return re.sub(r"\s+", " ", no_accents.lower()).strip()
+
+
+def keyword_boost(question: str, doc: dict[str, Any]) -> float:
+    """Small deterministic boost for legal citations and form numbers.
+
+    Dense embeddings are good for meaning, but legal/form questions often hinge
+    on exact tokens such as "Mẫu số 1" or "Phụ lục I".
+    """
+    query = normalize_for_match(question)
+    metadata = doc.get("metadata") or {}
+    fields = normalize_for_match(
+        " ".join(
+            str(value)
+            for value in (
+                metadata.get("so_hieu"),
+                metadata.get("chuong"),
+                metadata.get("ten_chuong"),
+                metadata.get("so_dieu"),
+                metadata.get("ten_dieu"),
+                doc.get("noi_dung", "")[:500],
+            )
+            if value
+        )
+    )
+
+    boost = 0.0
+    for law_id in re.findall(r"\b\d{1,4}/\d{4}/[a-z]+(?:-[a-z]+)?\b", query):
+        if law_id in fields:
+            boost += 0.04
+
+    form_match = re.search(r"\bmau\s+so\s+(\d+)\b", query)
+    if form_match and re.search(rf"\bmau\s+so\s+0*{form_match.group(1)}\b", fields):
+        boost += 0.12
+        # When asking for a specific form, prefer the extracted DOCX form body
+        # over the circular's HTML appendix list.
+        if metadata.get("nguon") == "docx":
+            boost += 0.06
+        elif metadata.get("nguon") == "html":
+            boost -= 0.03
+
+    appendix_match = re.search(r"\bphu\s+luc\s+([ivx]+)\b", query)
+    if appendix_match:
+        requested_appendix = appendix_match.group(1)
+        if re.search(rf"\bphu\s+luc\s+{requested_appendix}\b", fields):
+            boost += 0.08
+        elif re.search(r"\bphu\s+luc\s+[ivx]+\b", fields):
+            boost -= 0.06
+
+    title_terms = [
+        "giay de nghi dang ky ho kinh doanh",
+        "giay de nghi dang ky doanh nghiep",
+        "thong bao cham dut",
+        "tam ngung kinh doanh",
+        "cap lai giay chung nhan",
+    ]
+    for term in title_terms:
+        if term in query and term in fields:
+            boost += 0.06
+    return boost
+
+
 def dedupe_key(text: str) -> str:
     compact = re.sub(r"\s+", " ", text).strip().lower()
     return compact[:1200]
@@ -127,7 +196,9 @@ def retrieve(
     top_k: int,
 ) -> list[RetrievedChunk]:
     query_vector = encode_query(model, question, model_name)
-    scores = vectors @ query_vector
+    dense_scores = vectors @ query_vector
+    boosts = np.array([keyword_boost(question, doc) for doc in documents], dtype=np.float32)
+    scores = dense_scores + boosts
     candidate_count = min(len(documents), top_k * DEDUP_CANDIDATE_MULTIPLIER)
     top_indexes = sorted(range(len(scores)), key=lambda index: (-float(scores[index]), index))[:candidate_count]
 

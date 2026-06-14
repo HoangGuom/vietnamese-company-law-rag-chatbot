@@ -8,16 +8,8 @@ services:
       # Model lưu vào volume, tồn tại giữa các lần restart
       # Lần đầu pull qwen3:4b ~2.5GB, từ lần 2 trở đi dùng cache
       - ollama_data:/root/.ollama
-    # GPU support — Docker Compose v2 syntax chuẩn
-    # Máy KHÔNG có GPU: xóa hoặc comment cả khối deploy bên dưới
-    # Ollama vẫn chạy CPU, chỉ chậm hơn ~5-10x
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+    # CPU-safe default: works on machines without NVIDIA GPU setup.
+    # For NVIDIA GPU, use: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:11434/"]
       interval: 5s

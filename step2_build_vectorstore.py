@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import datetime
 from importlib import import_module
 from collections import Counter
 from dataclasses import dataclass
@@ -143,9 +144,11 @@ def build_vectors(
 def save_vectorstore(records: list[VectorRecord], manifest: dict[str, Any], output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Backup file cũ trước khi ghi đè
+    # Backup file cũ trước khi ghi đè. Dùng timestamp để chạy lại nhiều lần
+    # không bị đụng file .bak cũ.
     if output_path.exists():
-        backup_path = output_path.with_suffix(".json.bak")
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = output_path.with_name(f"{output_path.stem}.{stamp}{output_path.suffix}.bak")
         output_path.rename(backup_path)
         print(f"Đã backup vectorstore cũ sang {backup_path}")
 
