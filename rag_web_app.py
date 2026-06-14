@@ -47,7 +47,7 @@ class ChatResponse(BaseModel):
     sources: list[Source]
 
 
-app = FastAPI(title="RAG Chatbot Luat Doanh Nghiep")
+app = FastAPI(title="RAG Chatbot Luật Doanh Nghiệp")
 state: dict[str, Any] = {}
 
 
