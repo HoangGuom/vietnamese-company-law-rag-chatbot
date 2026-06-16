@@ -11,8 +11,6 @@ Chatbot hỏi đáp pháp luật doanh nghiệp Việt Nam, sử dụng RAG (Ret
 - Luật sửa đổi bổ sung 2025 (`76/2025/QH15`)
 - Nghị định đăng ký doanh nghiệp (`168/2025/NĐ-CP`)
 
-![Demo screenshot](docs/screenshot.png)
-
 ---
 
 ## 🌟 Features
