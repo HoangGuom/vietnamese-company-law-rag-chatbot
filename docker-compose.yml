@@ -11,7 +11,7 @@ services:
     # CPU-safe default: works on machines without NVIDIA GPU setup.
     # For NVIDIA GPU, use: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      test: ["CMD", "ollama", "list"]
       interval: 5s
       timeout: 5s
       retries: 12  # chờ tối đa 60s cho Ollama khởi động

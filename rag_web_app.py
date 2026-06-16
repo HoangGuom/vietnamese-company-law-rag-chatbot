@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from html import escape
 from pathlib import Path
 from typing import Any
 
@@ -130,7 +131,7 @@ def index() -> str:
       <h1>RAG Chatbot Luật Doanh Nghiệp</h1>
       <div class="meta">Truy xuất văn bản luật, trả lời bằng Qwen và hiển thị nguồn trích dẫn.</div>
     </div>
-    <div class="meta">Model: qwen3:4b</div>
+    <div class="meta">Model: __QWEN_MODEL__</div>
   </header>
   <section class="panel">
     <textarea id="question" placeholder="Nhập câu hỏi về luật doanh nghiệp...">Điều kiện cấp Giấy chứng nhận đăng ký doanh nghiệp là gì?</textarea>
@@ -203,7 +204,7 @@ ask.onclick = async () => {
 </script>
 </body>
 </html>
-"""
+""".replace("__QWEN_MODEL__", escape(QWEN_MODEL))
 
 
 @app.get("/health")

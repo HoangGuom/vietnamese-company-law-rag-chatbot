@@ -24,6 +24,15 @@ from xml.etree import ElementTree as ET
 CHUNKS_PATH = Path("legal_chunks.json")
 DOC_LINKS_PATH = Path("downloads/dkkd_doc_links.json")
 DOCX_DIR = Path("downloads/tt68_forms_docx")
+
+
+def to_repo_relative_path(path: str | Path) -> str:
+    """Store portable paths in JSON metadata instead of machine-local absolute paths."""
+    file_path = Path(path).resolve()
+    try:
+        return file_path.relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return file_path.name
 MAX_CHUNK_CHARS = 6000
 
 TT68_BASE = {
@@ -242,7 +251,7 @@ def build_form_chunks(forms: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     "noi_dung": full_text,
                     "nguon": "docx",
                     "source_url": form["source_url"],
-                    "source_file": str(Path(form["file"]).resolve()),
+                    "source_file": to_repo_relative_path(form["file"]),
                     "parent_chunk_id": parent_id,
                     "part_index": part_index,
                     "part_total": total_parts,

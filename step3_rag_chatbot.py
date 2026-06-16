@@ -252,6 +252,7 @@ def build_context(chunks: list[RetrievedChunk], max_chars: int) -> str:
 def build_messages(question: str, chunks: list[RetrievedChunk], max_context_chars: int) -> list[dict[str, str]]:
     context = build_context(chunks, max_context_chars)
     system = (
+        "Luôn trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu ngôn ngữ khác. "
         "Bạn là chatbot RAG hỗ trợ tra cứu pháp luật doanh nghiệp Việt Nam. "
         "Chỉ trả lời dựa trên NGỮ CẢNH được cung cấp. Nếu ngữ cảnh không đủ, "
         "hãy nói rõ là chưa đủ căn cứ. Không bịa điều luật. Luôn trích dẫn nguồn "

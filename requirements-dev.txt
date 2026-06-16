@@ -1,4 +1,4 @@
-# Dependencies để chạy selenium_crawler.py
+# Dependencies để crawl/rebuild dữ liệu pháp luật
 # Cài bằng: pip install -r requirements-dev.txt
  
 pdfplumber==0.11.4

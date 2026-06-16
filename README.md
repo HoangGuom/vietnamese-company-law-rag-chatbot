@@ -44,7 +44,7 @@ legal_chunks.json
         ↓
 tt68_forms_ingest.py
         ↓
-Generate audit.py
+generate_audit.py
         ↓
 step2_build_vectorstore.py
         ↓
@@ -77,9 +77,11 @@ docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
 
 ### Python Local
 
+Yêu cầu: cài Python và Ollama trên máy, sau đó mở Ollama trước khi chạy lệnh `ollama pull`.
+
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ollama pull qwen3:4b
@@ -90,11 +92,19 @@ ollama pull qwen3:4b
 
 | Variable | Default | Description |
 |---|---|---|
-| `OLLAMA_URL` | `http://localhost:11434` local, `http://ollama:11434` Docker | Ollama API endpoint |
+| `OLLAMA_URL` | `http://localhost:11434` local, `http://ollama:11434` Docker | Ollama API base URL |
 | `QWEN_MODEL` | `qwen3:4b` | Chat model |
 | `VECTORSTORE_PATH` | `vectorstore/legal_vectorstore.json` | Vectorstore path |
 
 Change model:
+
+```powershell
+$env:QWEN_MODEL="qwen3:8b"
+ollama pull qwen3:8b
+.\.venv\Scripts\python.exe -m uvicorn rag_web_app:app --host 127.0.0.1 --port 8000
+```
+
+With Docker:
 
 ```powershell
 $env:QWEN_MODEL="qwen3:8b"
@@ -164,12 +174,20 @@ TT68 hiện có `5` chunk điều khoản/danh mục và `48` chunk nội dung c
 
 ## 🧱 Rebuild Data
 
-Vectorstore đã được commit sẵn. Chỉ chạy lại pipeline khi muốn crawl nguồn mới, bổ sung biểu mẫu, đổi chunking hoặc rebuild embedding.
+Vectorstore JSON đã được commit sẵn tại `vectorstore/legal_vectorstore.json`, nên chỉ cần `requirements.txt` để chạy chatbot. Không cần cài Selenium, Edge driver hay `webdriver-manager` nếu bạn chỉ muốn dùng dữ liệu có sẵn.
+
+Chỉ cài thêm dependencies dev khi muốn tự crawl/tải lại tài liệu pháp luật về máy, bổ sung biểu mẫu, đổi chunking hoặc rebuild embedding:
+
+```powershell
+pip install -r requirements-dev.txt
+```
+
+Lưu ý: `tt68_forms_ingest.py` cần các file DOCX biểu mẫu trong `downloads/tt68_forms_docx/`. Thư mục `downloads/` không được commit lên GitHub, nên nếu clone mới thì cần tải hoặc tạo các file DOCX này trước khi chạy ingest.
 
 ```powershell
 .\.venv\Scripts\python.exe selenium_crawler.py
 .\.venv\Scripts\python.exe tt68_forms_ingest.py
-.\.venv\Scripts\python.exe "Generate audit.py"
+.\.venv\Scripts\python.exe generate_audit.py
 .\.venv\Scripts\python.exe step2_build_vectorstore.py
 ```
 
@@ -188,7 +206,7 @@ vietnamese-company-law-rag-chatbot/
 ├── step2_build_vectorstore.py
 ├── selenium_crawler.py
 ├── tt68_forms_ingest.py
-├── Generate audit.py
+├── generate_audit.py
 ├── legal_chunks.json
 ├── legal_sources_audit.json
 └── vectorstore/

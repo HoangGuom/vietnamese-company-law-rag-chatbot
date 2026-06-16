@@ -32,6 +32,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 # ============================================================
 # DANH SÁCH VĂN BẢN CẦN CRAWL (cập nhật đến 30/05/2026)
@@ -173,6 +174,15 @@ LAW_LIST = [
 
 DOWNLOAD_DIR = str(Path("./downloads").absolute())
 OUTPUT_JSON  = "legal_chunks.json"
+
+
+def to_repo_relative_path(path: str | Path) -> str:
+    """Store portable paths in JSON metadata instead of machine-local absolute paths."""
+    file_path = Path(path).resolve()
+    try:
+        return file_path.relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return file_path.name
 MAX_CHUNK_CHARS = 6000
 CHUNK_OVERLAP_CHARS = 500
 TRUSTED_DOWNLOAD_DOMAINS = {
@@ -259,8 +269,11 @@ def create_driver(headless: bool = False) -> webdriver.Edge:
     }
     opts.add_experimental_option("prefs", prefs)
 
+    local_driver = Path("drivers/msedgedriver.exe")
+    driver_path = str(local_driver) if local_driver.is_file() else EdgeChromiumDriverManager().install()
+
     driver = webdriver.Edge(
-        service=Service("drivers/msedgedriver.exe"),
+        service=Service(driver_path),
         options=opts,
     )
 
@@ -1059,7 +1072,7 @@ def main():
 
             source      = "pdf" if file_path.endswith(".pdf") else "html"
             source_url  = url
-            source_file = str(Path(file_path).resolve())
+            source_file = to_repo_relative_path(file_path)
             chunks      = parse_chunks(raw_text, law, source, source_url, source_file)
             validate_law_chunks(chunks, law)
             all_chunks.extend(chunks)
