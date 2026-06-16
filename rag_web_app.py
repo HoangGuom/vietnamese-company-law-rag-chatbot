@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import os
+from contextlib import asynccontextmanager
 from html import escape
 from pathlib import Path
-from typing import Any
+from typing import Any, AsyncIterator
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
@@ -48,11 +49,9 @@ class ChatResponse(BaseModel):
     sources: list[Source]
 
 
-app = FastAPI(title="RAG Chatbot Luật Doanh Nghiệp")
 state: dict[str, Any] = {}
 
 
-@app.on_event("startup")
 def startup() -> None:
     manifest, documents, vectors = load_vectorstore(VECTORSTORE_PATH)
     embedding_model = load_embedding_model(manifest["embedding_model"])
@@ -64,6 +63,15 @@ def startup() -> None:
             "embedding_model": embedding_model,
         }
     )
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    startup()
+    yield
+
+
+app = FastAPI(title="RAG Chatbot Luật Doanh Nghiệp", lifespan=lifespan)
 
 
 def retrieve_sources(request: ChatRequest) -> list[Source]:

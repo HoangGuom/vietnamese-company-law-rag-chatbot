@@ -1,11 +1,19 @@
-# ⚖️ Vietnamese Company Law RAG Chatbot
-
-Chatbot RAG tra cứu pháp luật doanh nghiệp Việt Nam, chạy local với **FastAPI + Ollama/Qwen + vectorstore JSON**. Repo đã kèm dữ liệu vectorstore để clone về có thể chạy thử ngay, không cần API key cloud.
+# RAG Chatbot Luật Doanh Nghiệp Việt Nam
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-Web%20API-green)
-![Ollama](https://img.shields.io/badge/Ollama-Qwen-black)
-![Docker](https://img.shields.io/badge/Docker-supported-blue)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+Chatbot hỏi đáp pháp luật doanh nghiệp Việt Nam, sử dụng RAG (Retrieval-Augmented Generation) với **Qwen3** qua Ollama và **sentence-transformers** để embed văn bản luật. Giao diện web đơn giản, triển khai hoàn toàn bằng Docker.
+
+**Dữ liệu pháp luật hiện hành:**
+- Luật Doanh nghiệp hợp nhất 2025 (`67/VBHN-VPQH`)
+- Luật sửa đổi bổ sung 2025 (`76/2025/QH15`)
+- Nghị định đăng ký doanh nghiệp (`168/2025/NĐ-CP`)
+
+![Demo screenshot](docs/screenshot.png)
+
+---
 
 ## 🌟 Features
 
