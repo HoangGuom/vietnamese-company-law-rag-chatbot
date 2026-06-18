@@ -117,6 +117,15 @@ $env:QWEN_MODEL="qwen3:8b"
 docker compose up --build
 ```
 
+Với NVIDIA GPU:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build -d
+```
+
+Compose tự pull model nếu chưa có, warm-up Qwen trước khi mở web app và giữ
+model trong VRAM 30 phút. Điều này tránh cold start dài ở lượt hỏi đầu tiên.
+
 ## 📖 Usage
 
 ### Web Chat
@@ -146,6 +155,43 @@ Retrieve only:
 ```powershell
 .\.venv\Scripts\python.exe step3_rag_chatbot.py --retrieve-only --question "Mẫu số 2 Phụ lục II đăng ký thay đổi hộ kinh doanh gồm những mục nào?"
 ```
+
+### Retrieval guard
+
+Trước khi gọi Qwen, ứng dụng kiểm tra câu hỏi và kết quả retrieval ở tầng Python:
+
+- Từ chối câu hỏi ngoài phạm vi, vô nghĩa, quá mơ hồ hoặc chỉ xin lời khuyên chung.
+- Sửa một số lỗi gõ phổ biến nhưng không bổ sung ý nghĩa pháp lý mới.
+- Loại kết quả có score thấp hoặc top results quá sát nhau khi câu hỏi không có tín hiệu pháp lý rõ.
+- Không gọi LLM và không trả source khi retrieval không đạt yêu cầu; câu trả lời cố định là:
+  `Không tìm thấy thông tin trong tài liệu được cung cấp.`
+
+Có thể hiệu chỉnh bằng biến môi trường:
+
+```powershell
+$env:MIN_RETRIEVAL_SCORE="0.84"
+$env:MIN_TOP_GAP="0.008"
+$env:MAX_SCORE_DROP="0.08"
+```
+
+Chạy test:
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+Chạy evaluator khớp với pipeline thật:
+
+```powershell
+# Guard + retrieval, không cần Ollama
+.\.venv\Scripts\python.exe local_eval\rag_eval_local.py
+
+# Full evaluation, gồm cả câu trả lời Qwen
+.\.venv\Scripts\python.exe local_eval\rag_eval_local.py --generate
+```
+
+Phần generation dùng structured JSON output, kiểm tra citation, lời khuyên,
+reasoning bị lộ và định danh pháp lý không xuất hiện trong context trước khi trả lời.
 
 ## 🔌 API
 

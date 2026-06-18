@@ -1,0 +1,6 @@
+{"id":"out_of_scope","question":"Cách nấu phở?","expected_accept":false,"expected_reason":"out_of_scope"}
+{"id":"gibberish","question":"abc xyz alo?","expected_accept":false,"expected_reason":"out_of_scope"}
+{"id":"ambiguous","question":"Cái này làm sao?","expected_accept":false,"expected_reason":"ambiguous_question"}
+{"id":"typo_but_still_ambiguous","question":"đăg kí doang ngiệp","expected_rewrite":"đăng ký doanh nghiệp","expected_accept":false,"expected_reason":"ambiguous_question"}
+{"id":"generic_advice","question":"Tôi nên mở công ty gì?","expected_accept":false,"expected_reason":"advice_without_legal_fact"}
+{"id":"small_talk_plus_legal_question","question":"Hôm nay trời đẹp, tiện thể cho tôi biết ai không được thành lập doanh nghiệp?","expected_rewrite":"ai không được thành lập doanh nghiệp?","expected_accept":true}
