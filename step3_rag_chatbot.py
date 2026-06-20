@@ -66,7 +66,11 @@ LEGAL_DOMAIN_TERMS = (
 VAGUE_QUESTION_PATTERNS = (
     r"^(cai|viec|van de) (nay|do) (la gi|lam sao|the nao)?\??$",
     r"^(lam sao|the nao|gi vay|sao day)\??$",
+    r"^(cong ty|doanh nghiep|ho kinh doanh)\??$",
     r"^(dang ky doanh nghiep|thanh lap doanh nghiep|mo cong ty)\??$",
+    r"^(giup toi( voi)? )?(chuyen|van de) (cong ty|doanh nghiep) (nay|do)\.?$",
+    r"^(mo|thanh lap) (cong ty|doanh nghiep) (lam sao|the nao)\??$",
+    r"^(viec )?(dang ky|thanh lap) (cong ty|doanh nghiep) (nay )?(lam sao|the nao)\??$",
 )
 
 ADVICE_PATTERNS = (
@@ -75,6 +79,68 @@ ADVICE_PATTERNS = (
     r"\bnen chon\b",
     r"\bnen lam gi\b",
     r"\btu van\b",
+)
+
+PROMPT_INJECTION_PATTERNS = (
+    r"\bbo qua (tai lieu|context|huong dan|chi dan)\b",
+    r"\bbo qua (cac )?(quy tac|lenh|yeu cau) (truoc|phia tren)\b",
+    r"\bignore (the )?(context|instructions?|documents?)\b",
+    r"\bignore (all )?(previous|prior) instructions?\b",
+    r"\bkhong can dua vao (tai lieu|context)\b",
+    r"\btiet lo (prompt|chi dan he thong)\b",
+    r"\b(reveal|show|print) (the )?(system prompt|developer message|hidden instructions?)\b",
+    r"\b(in|hien thi|xuat) (toan bo )?(context|prompt he thong|chi dan he thong)\b",
+    r"\b(system prompt|developer message|jailbreak|che do dan)\b",
+    r"\b(api key|mat khau|password|secret|bien moi truong|file \.env)\b",
+)
+
+NON_LEGAL_TOPIC_TERMS = (
+    "thoi tiet",
+    "nau an",
+    "nau pho",
+    "cong thuc nau",
+    "bong da",
+    "world cup",
+    "lap trinh",
+    "python",
+    "thuoc gi",
+    "dau nguc",
+    "di da ngoai",
+    "thue gia tri gia tang",
+    "thue thu nhap doanh nghiep",
+    "sa thai nhan vien",
+    "hop dong lao dong",
+    "bao hiem xa hoi",
+    "tranh chap dat dai",
+    "ly hon",
+    "quyen nuoi con",
+)
+
+LEGAL_INTENT_TERMS = (
+    "thanh lap",
+    "dang ky",
+    "ho so",
+    "dieu kien",
+    "thu tuc",
+    "quyen",
+    "nghia vu",
+    "cam",
+    "khong duoc",
+    "von",
+    "thanh vien",
+    "co dong",
+    "giai the",
+    "tam ngung",
+    "chi nhanh",
+    "van phong dai dien",
+    "nguoi dai dien",
+    "giay chung nhan",
+    "luat doanh nghiep",
+    "nghi dinh",
+    "thong tu",
+    "dieu ",
+    "mau so",
+    "phu luc",
 )
 
 TOKEN_REWRITES = {
@@ -136,7 +202,12 @@ def parse_args() -> argparse.Namespace:
         default=os.getenv("OLLAMA_URL", DEFAULT_OLLAMA_URL),
         help="Ollama server URL",
     )
-    parser.add_argument("--temperature", type=float, default=0.2, help="Generation temperature")
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="Generation temperature (0.0 is recommended for legal QA)",
+    )
     parser.add_argument("--max-context-chars", type=int, default=12000, help="Maximum retrieved context size")
     parser.add_argument("--retrieve-only", action="store_true", help="Only show retrieved chunks; do not call Qwen")
     args = parser.parse_args()
@@ -201,6 +272,43 @@ def normalize_for_match(text: str) -> str:
     )
     no_accents = no_accents.replace("đ", "d").replace("Đ", "D")
     return re.sub(r"\s+", " ", no_accents.lower()).strip()
+
+
+def requires_direct_verdict(question: str) -> bool:
+    """Return True when the user is asking to confirm or reject a proposition."""
+    normalized = normalize_for_match(question)
+    patterns = (
+        r"\bco phai\b",
+        r"\bdung (hay )?khong\b",
+        r"\bphai (.+ )?khong\b",
+        r"^phai co .+\bmoi (duoc )?(goi|coi) la\b",
+        r"\bco .+\bkhong\b",
+    )
+    return any(re.search(pattern, normalized) for pattern in patterns)
+
+
+def starts_with_direct_verdict(answer: str) -> bool:
+    normalized = normalize_for_match(answer)
+    return bool(re.match(r"^(dung|sai|co|khong)\b", normalized))
+
+
+def is_company_people_count_question(question: str) -> bool:
+    normalized = normalize_for_match(question)
+    return (
+        any(
+            phrase in normalized
+            for phrase in ("may nguoi", "bao nhieu nguoi", "so nguoi", "mot nguoi")
+        )
+        and any(term in normalized for term in ("cong ty", "doanh nghiep"))
+    )
+
+
+def direct_verdict_has_explanation(answer: str) -> bool:
+    without_sources = re.sub(r"\n+\s*Nguồn:.*$", "", answer or "", flags=re.IGNORECASE | re.DOTALL)
+    without_citations = re.sub(r"\[\d+\]", "", without_sources)
+    normalized = normalize_for_match(without_citations)
+    remainder = re.sub(r"^(dung|sai|co|khong)\b[.:\s-]*", "", normalized).strip()
+    return len(re.findall(r"\b\w+\b", remainder, flags=re.UNICODE)) >= 5
 
 
 def rewrite_query(question: str) -> str:
@@ -269,8 +377,16 @@ def analyze_question(question: str) -> QueryAnalysis:
         return QueryAnalysis(original, rewritten, False, "empty_question", False)
     if len(tokens) < 2:
         return QueryAnalysis(original, rewritten, False, "too_short", has_strong_signal)
+    if any(re.search(pattern, normalized) for pattern in PROMPT_INJECTION_PATTERNS):
+        return QueryAnalysis(original, rewritten, False, "prompt_injection", has_strong_signal)
     if any(re.fullmatch(pattern, normalized) for pattern in VAGUE_QUESTION_PATTERNS):
         return QueryAnalysis(original, rewritten, False, "ambiguous_question", has_strong_signal)
+    if (
+        any(term in normalized for term in NON_LEGAL_TOPIC_TERMS)
+        and not has_legal_identifier
+        and not any(term in normalized for term in LEGAL_INTENT_TERMS)
+    ):
+        return QueryAnalysis(original, rewritten, False, "out_of_scope", False)
     if not has_domain_term and not has_legal_identifier:
         return QueryAnalysis(original, rewritten, False, "out_of_scope", False)
     if any(re.search(pattern, normalized) for pattern in ADVICE_PATTERNS):
@@ -357,6 +473,20 @@ def keyword_boost(question: str, doc: dict[str, Any]) -> float:
             boost += 0.06
     if "khong duoc thanh lap" in query and "khong co quyen thanh lap" in fields:
         boost += 0.10
+
+    asks_people_count = is_company_people_count_question(question)
+    if asks_people_count:
+        article = normalize_for_match(str(metadata.get("so_dieu") or ""))
+        title = normalize_for_match(str(metadata.get("ten_dieu") or ""))
+        content = normalize_for_match(str(doc.get("noi_dung") or "")[:1800])
+        if article == "dieu 4" and "doanh nghiep la to chuc" in content:
+            boost += 0.24
+        if article == "dieu 74" and "mot thanh vien" in title:
+            boost += 0.22
+        if article == "dieu 188" and "doanh nghiep tu nhan" in title:
+            boost += 0.18
+        if "so luong ho so" in title:
+            boost -= 0.12
     return boost
 
 
@@ -478,6 +608,12 @@ def build_context(chunks: list[RetrievedChunk], max_chars: int) -> str:
 
 def build_messages(question: str, chunks: list[RetrievedChunk], max_context_chars: int) -> list[dict[str, str]]:
     context = build_context(chunks, max_context_chars)
+    verdict_instruction = (
+        "Câu hỏi yêu cầu xác nhận một nhận định. Phải mở đầu bằng đúng một kết luận "
+        "'Đúng.', 'Sai.', 'Có.' hoặc 'Không.' phù hợp với CONTEXT, rồi mới giải thích. "
+        if requires_direct_verdict(question)
+        else ""
+    )
     system = (
         "/no_think\n"
         "Bạn là hệ thống hỏi đáp và trích xuất thông tin pháp luật doanh nghiệp Việt Nam. "
@@ -488,7 +624,8 @@ def build_messages(question: str, chunks: list[RetrievedChunk], max_context_char
         "Không đưa ra lời khuyên, chiến lược xử lý, khuyến nghị lựa chọn hoặc kết luận pháp lý "
         "cho trường hợp cụ thể. Không tự thêm tên văn bản, số điều, khoản hoặc điểm nếu CONTEXT "
         "không chứa thông tin đó. Mỗi thông tin pháp lý phải có trích dẫn [1], [2] tương ứng "
-        f"với chunk nguồn. Nếu CONTEXT không đủ để trả lời, chỉ trả lời đúng câu: \"{FALLBACK_ANSWER}\""
+        f"với chunk nguồn. Nếu CONTEXT không đủ để trả lời, chỉ trả lời đúng câu: \"{FALLBACK_ANSWER}\". "
+        f"{verdict_instruction}"
     )
     user = (
         f"CONTEXT:\n{context}\n\n"
@@ -506,6 +643,7 @@ def call_ollama(
     ollama_url: str,
     temperature: float,
     json_answer: bool = False,
+    max_citation_index: int | None = None,
 ) -> str:
     url = ollama_url.rstrip("/") + "/api/chat"
     request_payload: dict[str, Any] = {
@@ -550,7 +688,18 @@ def call_ollama(
         answer = answer.strip()
         raw_citations = parsed.get("citations")
         citations = (
-            sorted({item for item in raw_citations if isinstance(item, int) and item > 0})
+            sorted(
+                {
+                    item
+                    for item in raw_citations
+                    if isinstance(item, int)
+                    and item > 0
+                    and (
+                        max_citation_index is None
+                        or item <= max_citation_index
+                    )
+                }
+            )
             if isinstance(raw_citations, list)
             else []
         )
@@ -625,12 +774,136 @@ def unsupported_legal_identifiers(
 def answer_passes_grounding_checks(
     answer: str,
     chunks: list[RetrievedChunk],
+    question: str = "",
 ) -> bool:
-    return bool(valid_citation_indexes(answer, len(chunks))) and not (
-        has_reasoning_leak(answer)
-        or has_forbidden_advice(answer)
-        or unsupported_legal_identifiers(answer, chunks)
+    citation_indexes = [int(index) for index in re.findall(r"\[(\d+)\]", answer or "")]
+    citations_are_valid = bool(citation_indexes) and all(
+        1 <= index <= len(chunks) for index in citation_indexes
     )
+    has_required_verdict = (
+        not requires_direct_verdict(question)
+        or (
+            starts_with_direct_verdict(answer)
+            and direct_verdict_has_explanation(answer)
+        )
+    )
+    return (
+        citations_are_valid
+        and has_required_verdict
+        and not (
+            has_reasoning_leak(answer)
+            or has_forbidden_advice(answer)
+            or unsupported_legal_identifiers(answer, chunks)
+        )
+    )
+
+
+def build_deterministic_grounded_answer(
+    question: str,
+    chunks: list[RetrievedChunk],
+) -> str | None:
+    """Answer narrow high-risk intents deterministically from retrieved sources."""
+    normalized_question = normalize_for_match(question)
+
+    def article_chunk(article: str) -> RetrievedChunk | None:
+        return next(
+            (
+                chunk
+                for chunk in chunks
+                if normalize_for_match(str(chunk.metadata.get("so_dieu") or ""))
+                == article
+            ),
+            None,
+        )
+
+    definition_chunk = article_chunk("dieu 4")
+    one_member_chunk = article_chunk("dieu 74")
+
+    if is_company_people_count_question(question):
+        if not definition_chunk or not one_member_chunk:
+            return None
+        return (
+            "Không. Pháp luật không đặt ra một số người tối thiểu chung để một tổ chức "
+            f"được gọi là doanh nghiệp. Doanh nghiệp được xác định theo việc có tên riêng, "
+            f"tài sản, trụ sở giao dịch và được thành lập hoặc đăng ký thành lập nhằm mục "
+            f"đích kinh doanh [{definition_chunk.rank}]. Công ty trách nhiệm hữu hạn một "
+            f"thành viên có thể do một cá nhân hoặc một tổ chức làm chủ sở hữu và vẫn là "
+            f"doanh nghiệp [{one_member_chunk.rank}]. Số thành viên cụ thể phụ thuộc vào "
+            "loại hình doanh nghiệp."
+        )
+
+    definition_intent = (
+        "doanh nghiep" in normalized_question
+        and any(
+            term in normalized_question
+            for term in ("dinh nghia", "la gi", "duoc xem la", "the nao")
+        )
+    )
+    if definition_intent and definition_chunk:
+        return (
+            "Doanh nghiệp là tổ chức có tên riêng, có tài sản, có trụ sở giao dịch "
+            "và được thành lập hoặc đăng ký thành lập theo quy định của pháp luật "
+            f"nhằm mục đích kinh doanh [{definition_chunk.rank}]."
+        )
+
+    one_member_owner_intent = (
+        any(
+            term in normalized_question
+            for term in (
+                "cong ty trach nhiem huu han mot thanh vien",
+                "cong ty tnhh mot thanh vien",
+            )
+        )
+        and any(
+            term in normalized_question
+            for term in ("ca nhan", "to chuc", "chu so huu", "lam chu")
+        )
+    )
+    if one_member_owner_intent and one_member_chunk:
+        return (
+            "Có. Công ty trách nhiệm hữu hạn một thành viên là doanh nghiệp do một "
+            "tổ chức hoặc một cá nhân làm chủ sở hữu; chủ sở hữu chịu trách nhiệm "
+            f"trong phạm vi vốn điều lệ của công ty [{one_member_chunk.rank}]."
+        )
+
+    private_enterprise_chunk = article_chunk("dieu 188")
+    private_owner_intent = (
+        "doanh nghiep tu nhan" in normalized_question
+        and any(
+            term in normalized_question
+            for term in ("mot ca nhan", "lam chu", "chu so huu")
+        )
+    )
+    if private_owner_intent and private_enterprise_chunk:
+        return (
+            "Có. Doanh nghiệp tư nhân do một cá nhân làm chủ và cá nhân đó tự chịu "
+            "trách nhiệm bằng toàn bộ tài sản của mình về mọi hoạt động của doanh "
+            f"nghiệp [{private_enterprise_chunk.rank}]."
+        )
+
+    organization_unit_chunk = article_chunk("dieu 44")
+    if (
+        "chi nhanh" in normalized_question
+        and "chuc nang kinh doanh" in normalized_question
+        and organization_unit_chunk
+    ):
+        return (
+            "Có. Chi nhánh có nhiệm vụ thực hiện toàn bộ hoặc một phần chức năng của "
+            "doanh nghiệp, bao gồm cả chức năng đại diện theo ủy quyền; ngành, nghề "
+            f"kinh doanh của chi nhánh phải đúng với doanh nghiệp [{organization_unit_chunk.rank}]."
+        )
+    if (
+        "van phong dai dien" in normalized_question
+        and "chuc nang kinh doanh" in normalized_question
+        and organization_unit_chunk
+    ):
+        return (
+            "Không. Văn phòng đại diện có nhiệm vụ đại diện theo ủy quyền cho lợi ích "
+            "của doanh nghiệp và bảo vệ các lợi ích đó, nhưng không thực hiện chức "
+            f"năng kinh doanh của doanh nghiệp [{organization_unit_chunk.rank}]."
+        )
+
+    return None
 
 
 def call_grounded_ollama(
@@ -642,12 +915,30 @@ def call_grounded_ollama(
     temperature: float,
 ) -> str:
     """Generate an answer and retry once if chunk citations are missing."""
+    deterministic_answer = build_deterministic_grounded_answer(question, chunks)
+    if deterministic_answer is not None:
+        return deterministic_answer
+
     messages = build_messages(question, chunks, max_context_chars)
-    answer = call_ollama(messages, model, ollama_url, temperature, json_answer=True)
-    if answer_passes_grounding_checks(answer, chunks):
+    answer = call_ollama(
+        messages,
+        model,
+        ollama_url,
+        temperature,
+        json_answer=True,
+        max_citation_index=len(chunks),
+    )
+    if answer_passes_grounding_checks(answer, chunks, question):
         return answer
 
     context = build_context(chunks, max_context_chars)
+    verdict_instruction = (
+        "Đây là câu hỏi xác nhận. Câu trả lời bắt buộc mở đầu bằng 'Đúng.', 'Sai.', "
+        "'Có.' hoặc 'Không.'; không được né kết luận. Sau kết luận phải giải thích rõ "
+        "ít nhất 1-2 câu dựa trên CONTEXT; không được chỉ trả một từ. "
+        if requires_direct_verdict(question)
+        else ""
+    )
     retry_messages = [
         {
             "role": "system",
@@ -660,6 +951,7 @@ def call_grounded_ollama(
             "role": "user",
             "content": (
                 f"CONTEXT:\n{context}\n\nCÂU HỎI:\n{question}\n\n"
+                f"{verdict_instruction}"
                 "Trả lời trực tiếp trong tối đa 250 từ. Đặt [1], [2], ... ngay sau thông tin "
                 "tương ứng. Không tạo citation lớn hơn số chunk. Không trả lời người dùng nên "
                 "hay không nên làm gì. Không thêm số điều, khoản, điểm hoặc văn bản không xuất "
@@ -673,8 +965,9 @@ def call_grounded_ollama(
         ollama_url,
         0.0,
         json_answer=True,
+        max_citation_index=len(chunks),
     )
-    if answer_passes_grounding_checks(retried_answer, chunks):
+    if answer_passes_grounding_checks(retried_answer, chunks, question):
         return retried_answer
     return FALLBACK_ANSWER
 

@@ -14,12 +14,12 @@ from pydantic import BaseModel, Field
 
 from step3_rag_chatbot import (
     DEFAULT_TOP_K,
-    FALLBACK_ANSWER,
-    call_grounded_ollama,
+    build_messages,
+    call_ollama,
     format_source,
-    guarded_retrieve,
     load_embedding_model,
     load_vectorstore,
+    retrieve,
 )
 
 
@@ -75,7 +75,7 @@ app = FastAPI(title="RAG Chatbot Luật Doanh Nghiệp", lifespan=lifespan)
 
 
 def retrieve_sources(request: ChatRequest) -> list[Source]:
-    result = guarded_retrieve(
+    chunks = retrieve(
         request.question,
         state["embedding_model"],
         state["manifest"]["embedding_model"],
@@ -83,7 +83,7 @@ def retrieve_sources(request: ChatRequest) -> list[Source]:
         state["vectors"],
         request.top_k,
     )
-    return chunks_to_sources(result.chunks)
+    return chunks_to_sources(chunks)
 
 
 def chunks_to_sources(chunks: list[Any]) -> list[Source]:
@@ -232,7 +232,7 @@ def api_retrieve(request: ChatRequest) -> dict[str, list[Source]]:
 
 @app.post("/api/chat", response_model=ChatResponse)
 def api_chat(request: ChatRequest) -> ChatResponse:
-    result = guarded_retrieve(
+    chunks = retrieve(
         request.question,
         state["embedding_model"],
         state["manifest"]["embedding_model"],
@@ -240,20 +240,10 @@ def api_chat(request: ChatRequest) -> ChatResponse:
         state["vectors"],
         request.top_k,
     )
-    if not result.accepted:
-        return ChatResponse(answer=FALLBACK_ANSWER, sources=[])
-
-    chunks = result.chunks
     sources = chunks_to_sources(chunks)
+    messages = build_messages(request.question, chunks, MAX_CONTEXT_CHARS)
     try:
-        answer = call_grounded_ollama(
-            request.question,
-            chunks,
-            MAX_CONTEXT_CHARS,
-            QWEN_MODEL,
-            OLLAMA_URL,
-            request.temperature,
-        )
+        answer = call_ollama(messages, QWEN_MODEL, OLLAMA_URL, request.temperature)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Cannot call Qwen via Ollama: {exc}") from exc
     return ChatResponse(answer=answer, sources=sources)
