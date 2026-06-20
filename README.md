@@ -101,6 +101,7 @@ ollama pull qwen3:4b
 | `OLLAMA_URL` | `http://localhost:11434` local, `http://ollama:11434` Docker | Ollama API base URL |
 | `QWEN_MODEL` | `qwen3:4b` | Chat model |
 | `VECTORSTORE_PATH` | `vectorstore/legal_vectorstore.json` | Vectorstore path |
+| `ENABLE_RETRIEVE_ENDPOINT` | `false` | Enable the retrieval-only debug endpoint |
 
 Change model:
 
@@ -123,6 +124,7 @@ Với NVIDIA GPU:
 docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build -d
 ```
 
+Tên model trong Compose chỉ được chứa chữ, số và các ký tự `._:/-`.
 Compose tự pull model nếu chưa có, warm-up Qwen trước khi mở web app và giữ
 model trong VRAM 30 phút. Điều này tránh cold start dài ở lượt hỏi đầu tiên.
 
@@ -193,6 +195,15 @@ Chạy evaluator khớp với pipeline thật:
 Phần generation dùng structured JSON output, kiểm tra citation, lời khuyên,
 reasoning bị lộ và định danh pháp lý không xuất hiện trong context trước khi trả lời.
 
+Định nghĩa metric, công thức, trade-off, nguồn học thuật và giới hạn của benchmark:
+[`local_eval/README.md`](local_eval/README.md). Bộ regression mặc định có 80 case
+trong [`local_eval/cases/rag_eval_cases.jsonl`](local_eval/cases/rag_eval_cases.jsonl).
+Các điểm `overall_score` và `severity_weighted_score` là composite metric tùy biến
+của dự án, không phải benchmark chuẩn và không đo riêng năng lực của Qwen.
+
+Báo cáo eval JSON/CSV là runtime artifacts và được `.gitignore`; hãy chạy lại evaluator
+để tạo số liệu phù hợp với code, model và phần cứng hiện tại thay vì commit snapshot cũ.
+
 ## 🔌 API
 
 | Endpoint | Method | Description |
@@ -200,8 +211,13 @@ reasoning bị lộ và định danh pháp lý không xuất hiện trong contex
 | `/` | GET | Web UI |
 | `/health` | GET | Health check |
 | `/api/chat` | POST | Ask chatbot and return answer + sources |
-| `/api/retrieve` | POST | Retrieve chunks only |
-| `/docs` | GET | Swagger UI |
+| `/api/retrieve` | POST | Retrieve source snippets; disabled by default |
+| `/docs` | GET | Swagger UI; disabled by default |
+
+`question` is limited to 2,000 characters. Source text is truncated and metadata is
+filtered before being returned to clients. Set `ENABLE_RETRIEVE_ENDPOINT=true` only
+for trusted debugging environments. Set `ENABLE_API_DOCS=true` only when API schema
+discovery is intentionally needed.
 
 Example:
 
@@ -271,7 +287,15 @@ vietnamese-company-law-rag-chatbot/
 - `.env`, `.env.*`, `downloads/`, `drivers/`, cache và log runtime đã được ignore.
 - Docker compose chỉ publish `8000` và `11434` trên `127.0.0.1`.
 - Web UI render source text bằng DOM/text node để tránh HTML injection từ chunk.
-- `/api/retrieve` trả về full text chunk và metadata; chỉ public khi dữ liệu ingest là public hoặc đã có phân quyền.
+- `/api/retrieve` bị tắt mặc định; source snippet bị giới hạn và metadata dùng allowlist.
+- API từ chối câu hỏi rỗng/null byte, giới hạn độ dài câu hỏi và kích thước request body.
+- Swagger/OpenAPI bị tắt mặc định; response có CSP, anti-framing, no-sniff và no-store headers.
+- `/health` không công khai model, embedding hoặc số lượng tài liệu.
+- Hệ thống không lưu lịch sử chat và Qwen chạy qua Ollama local; prompt không được chủ động gửi tới API LLM cloud.
+
+Nếu mở dịch vụ ra Internet, vẫn cần đặt reverse proxy có TLS, authentication,
+rate limiting, request logging đã loại bỏ dữ liệu nhạy cảm và monitoring. Cấu hình
+mặc định phù hợp chạy local/portfolio, chưa phải cấu hình public multi-tenant.
 
 ## 🛠️ Troubleshooting
 
