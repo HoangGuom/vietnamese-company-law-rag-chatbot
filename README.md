@@ -64,16 +64,34 @@ vectorstore/legal_vectorstore.json
 ```bash
 git clone https://github.com/HoangGuom/vietnamese-company-law-rag-chatbot.git
 cd vietnamese-company-law-rag-chatbot
-docker compose up --build
 ```
 
-Open:
+Trên Windows, chạy script để tự chọn cổng web còn trống:
+
+```powershell
+.\scripts\start-docker.cmd
+```
+
+Script ưu tiên cổng `8000`. Nếu cổng này đang được sử dụng, script tự kiểm tra
+`8001`, `8002`, ... và in URL đã chọn. Chạy nền bằng:
+
+```powershell
+.\scripts\start-docker.cmd -Detached
+```
+
+Trên hệ điều hành khác, hoặc khi muốn chọn cổng thủ công:
+
+```bash
+APP_PORT=8001 docker compose up --build
+```
+
+Open the URL printed by the script, for example:
 
 ```text
 http://localhost:8000
 ```
 
-Docker sẽ build web app, khởi động Ollama, pull `qwen3:4b` nếu chưa có, và dùng vectorstore đã commit sẵn. Mặc định compose chỉ bind port vào `127.0.0.1` để tránh vô tình mở chatbot/model ra mạng ngoài.
+Docker sẽ build web app, khởi động Ollama, pull `qwen3:4b` nếu chưa có, và dùng vectorstore đã commit sẵn. Mặc định chỉ cổng web được bind vào `127.0.0.1`; Ollama chỉ khả dụng trong mạng nội bộ Docker Compose.
 
 ### NVIDIA GPU
 
@@ -102,6 +120,7 @@ ollama pull qwen3:4b
 | `QWEN_MODEL` | `qwen3:4b` | Chat model |
 | `VECTORSTORE_PATH` | `vectorstore/legal_vectorstore.json` | Vectorstore path |
 | `ENABLE_RETRIEVE_ENDPOINT` | `false` | Enable the retrieval-only debug endpoint |
+| `APP_PORT` | `8000` | Host port mapped to the chatbot web UI |
 
 Change model:
 
@@ -285,7 +304,7 @@ vietnamese-company-law-rag-chatbot/
 
 - Repo mặc định không cần OpenAI/Gemini/Anthropic API key.
 - `.env`, `.env.*`, `downloads/`, `drivers/`, cache và log runtime đã được ignore.
-- Docker compose chỉ publish `8000` và `11434` trên `127.0.0.1`.
+- Docker Compose chỉ publish cổng web trên `127.0.0.1`; Ollama không được publish ra host.
 - Web UI render source text bằng DOM/text node để tránh HTML injection từ chunk.
 - `/api/retrieve` bị tắt mặc định; source snippet bị giới hạn và metadata dùng allowlist.
 - API từ chối câu hỏi rỗng/null byte, giới hạn độ dài câu hỏi và kích thước request body.
@@ -299,7 +318,26 @@ mặc định phù hợp chạy local/portfolio, chưa phải cấu hình public
 
 ## 🛠️ Troubleshooting
 
-Test Ollama:
+### Port 8000 is already in use
+
+Use the Windows startup script:
+
+```powershell
+.\scripts\start-docker.cmd -Detached
+```
+
+For example, when port `8000` is occupied:
+
+```text
+Port 8000 is unavailable. Using port 8001 instead.
+Chatbot URL: http://localhost:8001
+```
+
+Docker Compose itself does not automatically retry another port. The automatic
+fallback behavior is implemented by `scripts/start-docker.ps1`; the
+`start-docker.cmd` wrapper also works when Windows blocks direct `.ps1` execution.
+
+Test Ollama khi chạy Ollama trực tiếp trên máy:
 
 ```bash
 curl http://localhost:11434/api/tags

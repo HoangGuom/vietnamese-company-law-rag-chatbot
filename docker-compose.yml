@@ -2,8 +2,6 @@ services:
   # 1. Ollama server
   ollama:
     image: ollama/ollama:0.30.10@sha256:bfc9c6d53cc6989aa5131a6fde6b162b2802d4d337657f3253b5f69579bddeee
-    ports:
-      - "127.0.0.1:11434:11434"
     volumes:
       - ollama_data:/root/.ollama
     environment:
@@ -69,7 +67,7 @@ services:
       ollama-pull:
         condition: service_completed_successfully
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${APP_PORT:-8000}:8000"
     environment:
       OLLAMA_URL: http://ollama:11434
       QWEN_MODEL: ${QWEN_MODEL:-qwen3:4b}
