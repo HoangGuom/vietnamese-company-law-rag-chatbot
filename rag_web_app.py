@@ -2,24 +2,26 @@
 
 from __future__ import annotations
 
+import logging
 import os
+import re
 from contextlib import asynccontextmanager
 from html import escape
 from pathlib import Path
 from typing import Any, AsyncIterator
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse
+from pydantic import BaseModel, Field, field_validator
 
 from step3_rag_chatbot import (
     DEFAULT_TOP_K,
-    build_messages,
-    call_ollama,
+    FALLBACK_ANSWER,
+    call_grounded_ollama,
     format_source,
+    guarded_retrieve,
     load_embedding_model,
     load_vectorstore,
-    retrieve,
 )
 
 
@@ -27,12 +29,42 @@ VECTORSTORE_PATH = Path(os.getenv("VECTORSTORE_PATH", "vectorstore/legal_vectors
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 QWEN_MODEL = os.getenv("QWEN_MODEL", "qwen3:4b")
 MAX_CONTEXT_CHARS = int(os.getenv("MAX_CONTEXT_CHARS", "12000"))
+ENABLE_RETRIEVE_ENDPOINT = os.getenv("ENABLE_RETRIEVE_ENDPOINT", "").lower() in {
+    "1",
+    "true",
+    "yes",
+}
+ENABLE_API_DOCS = os.getenv("ENABLE_API_DOCS", "").lower() in {"1", "true", "yes"}
+MAX_QUESTION_CHARS = 2000
+MAX_REQUEST_BODY_BYTES = int(os.getenv("MAX_REQUEST_BODY_BYTES", "16384"))
+MAX_SOURCE_SNIPPET_CHARS = 1200
+PUBLIC_METADATA_FIELDS = {
+    "ten_van_ban",
+    "so_hieu",
+    "loai",
+    "hieu_luc",
+    "so_dieu",
+    "ten_dieu",
+    "source_url",
+}
+BACKEND_UNAVAILABLE_MESSAGE = "Dịch vụ tạo câu trả lời tạm thời không khả dụng."
+logger = logging.getLogger(__name__)
 
 
 class ChatRequest(BaseModel):
-    question: str = Field(min_length=1)
+    question: str = Field(min_length=1, max_length=MAX_QUESTION_CHARS)
     top_k: int = Field(default=DEFAULT_TOP_K, ge=1, le=12)
-    temperature: float = Field(default=0.2, ge=0, le=2)
+    temperature: float = Field(default=0.0, ge=0, le=1)
+
+    @field_validator("question")
+    @classmethod
+    def validate_question(cls, value: str) -> str:
+        if "\x00" in value:
+            raise ValueError("question contains a null byte")
+        normalized = re.sub(r"\s+", " ", value).strip()
+        if not normalized:
+            raise ValueError("question must contain visible text")
+        return normalized
 
 
 class Source(BaseModel):
@@ -71,11 +103,51 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
 
-app = FastAPI(title="RAG Chatbot Luật Doanh Nghiệp", lifespan=lifespan)
+app = FastAPI(
+    title="RAG Chatbot Luật Doanh Nghiệp",
+    lifespan=lifespan,
+    docs_url="/docs" if ENABLE_API_DOCS else None,
+    redoc_url=None,
+    openapi_url="/openapi.json" if ENABLE_API_DOCS else None,
+)
+
+
+@app.middleware("http")
+async def apply_http_security(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length:
+        try:
+            if int(content_length) > MAX_REQUEST_BODY_BYTES:
+                return JSONResponse(
+                    status_code=413,
+                    content={"detail": "Request body too large"},
+                    headers={"Cache-Control": "no-store"},
+                )
+        except ValueError:
+            return JSONResponse(
+                status_code=400,
+                content={"detail": "Invalid Content-Length"},
+                headers={"Cache-Control": "no-store"},
+            )
+
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; style-src 'self' 'unsafe-inline'; "
+        "script-src 'self' 'unsafe-inline'; object-src 'none'; "
+        "base-uri 'none'; frame-ancestors 'none'"
+    )
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Permissions-Policy"] = (
+        "camera=(), microphone=(), geolocation=(), payment=()"
+    )
+    return response
 
 
 def retrieve_sources(request: ChatRequest) -> list[Source]:
-    chunks = retrieve(
+    result = guarded_retrieve(
         request.question,
         state["embedding_model"],
         state["manifest"]["embedding_model"],
@@ -83,7 +155,7 @@ def retrieve_sources(request: ChatRequest) -> list[Source]:
         state["vectors"],
         request.top_k,
     )
-    return chunks_to_sources(chunks)
+    return chunks_to_sources(result.chunks)
 
 
 def chunks_to_sources(chunks: list[Any]) -> list[Source]:
@@ -93,8 +165,12 @@ def chunks_to_sources(chunks: list[Any]) -> list[Source]:
             score=chunk.score,
             chunk_id=chunk.chunk_id,
             source=format_source(chunk),
-            text=chunk.text,
-            metadata=chunk.metadata,
+            text=chunk.text[:MAX_SOURCE_SNIPPET_CHARS],
+            metadata={
+                key: value
+                for key, value in chunk.metadata.items()
+                if key in PUBLIC_METADATA_FIELDS
+            },
         )
         for chunk in chunks
     ]
@@ -218,21 +294,24 @@ ask.onclick = async () => {
 @app.get("/health")
 def health() -> dict[str, Any]:
     return {
-        "ok": True,
-        "documents": len(state.get("documents", [])),
-        "embedding_model": state.get("manifest", {}).get("embedding_model"),
-        "qwen_model": QWEN_MODEL,
+        "ok": bool(
+            state.get("embedding_model")
+            and state.get("documents")
+            and state.get("vectors") is not None
+        )
     }
 
 
 @app.post("/api/retrieve")
 def api_retrieve(request: ChatRequest) -> dict[str, list[Source]]:
+    if not ENABLE_RETRIEVE_ENDPOINT:
+        raise HTTPException(status_code=404, detail="Not found")
     return {"sources": retrieve_sources(request)}
 
 
 @app.post("/api/chat", response_model=ChatResponse)
 def api_chat(request: ChatRequest) -> ChatResponse:
-    chunks = retrieve(
+    result = guarded_retrieve(
         request.question,
         state["embedding_model"],
         state["manifest"]["embedding_model"],
@@ -240,10 +319,21 @@ def api_chat(request: ChatRequest) -> ChatResponse:
         state["vectors"],
         request.top_k,
     )
+    if not result.accepted:
+        return ChatResponse(answer=FALLBACK_ANSWER, sources=[])
+
+    chunks = result.chunks
     sources = chunks_to_sources(chunks)
-    messages = build_messages(request.question, chunks, MAX_CONTEXT_CHARS)
     try:
-        answer = call_ollama(messages, QWEN_MODEL, OLLAMA_URL, request.temperature)
+        answer = call_grounded_ollama(
+            request.question,
+            chunks,
+            MAX_CONTEXT_CHARS,
+            QWEN_MODEL,
+            OLLAMA_URL,
+            request.temperature,
+        )
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Cannot call Qwen via Ollama: {exc}") from exc
+        logger.exception("Cannot call Qwen via Ollama")
+        raise HTTPException(status_code=502, detail=BACKEND_UNAVAILABLE_MESSAGE) from exc
     return ChatResponse(answer=answer, sources=sources)

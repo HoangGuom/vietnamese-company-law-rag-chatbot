@@ -64,16 +64,34 @@ vectorstore/legal_vectorstore.json
 ```bash
 git clone https://github.com/HoangGuom/vietnamese-company-law-rag-chatbot.git
 cd vietnamese-company-law-rag-chatbot
-docker compose up --build
 ```
 
-Open:
+Trên Windows, chạy script để tự chọn cổng web còn trống:
+
+```powershell
+.\scripts\start-docker.cmd
+```
+
+Script ưu tiên cổng `8000`. Nếu cổng này đang được sử dụng, script tự kiểm tra
+`8001`, `8002`, ... và in URL đã chọn. Chạy nền bằng:
+
+```powershell
+.\scripts\start-docker.cmd -Detached
+```
+
+Trên hệ điều hành khác, hoặc khi muốn chọn cổng thủ công:
+
+```bash
+APP_PORT=8001 docker compose up --build
+```
+
+Open the URL printed by the script, for example:
 
 ```text
 http://localhost:8000
 ```
 
-Docker sẽ build web app, khởi động Ollama, pull `qwen3:4b` nếu chưa có, và dùng vectorstore đã commit sẵn. Mặc định compose chỉ bind port vào `127.0.0.1` để tránh vô tình mở chatbot/model ra mạng ngoài.
+Docker sẽ build web app, khởi động Ollama, pull `qwen3:4b` nếu chưa có, và dùng vectorstore đã commit sẵn. Mặc định chỉ cổng web được bind vào `127.0.0.1`; Ollama chỉ khả dụng trong mạng nội bộ Docker Compose.
 
 ### NVIDIA GPU
 
@@ -101,6 +119,8 @@ ollama pull qwen3:4b
 | `OLLAMA_URL` | `http://localhost:11434` local, `http://ollama:11434` Docker | Ollama API base URL |
 | `QWEN_MODEL` | `qwen3:4b` | Chat model |
 | `VECTORSTORE_PATH` | `vectorstore/legal_vectorstore.json` | Vectorstore path |
+| `ENABLE_RETRIEVE_ENDPOINT` | `false` | Enable the retrieval-only debug endpoint |
+| `APP_PORT` | `8000` | Host port mapped to the chatbot web UI |
 
 Change model:
 
@@ -116,6 +136,16 @@ With Docker:
 $env:QWEN_MODEL="qwen3:8b"
 docker compose up --build
 ```
+
+Với NVIDIA GPU:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build -d
+```
+
+Tên model trong Compose chỉ được chứa chữ, số và các ký tự `._:/-`.
+Compose tự pull model nếu chưa có, warm-up Qwen trước khi mở web app và giữ
+model trong VRAM 30 phút. Điều này tránh cold start dài ở lượt hỏi đầu tiên.
 
 ## 📖 Usage
 
@@ -147,6 +177,52 @@ Retrieve only:
 .\.venv\Scripts\python.exe step3_rag_chatbot.py --retrieve-only --question "Mẫu số 2 Phụ lục II đăng ký thay đổi hộ kinh doanh gồm những mục nào?"
 ```
 
+### Retrieval guard
+
+Trước khi gọi Qwen, ứng dụng kiểm tra câu hỏi và kết quả retrieval ở tầng Python:
+
+- Từ chối câu hỏi ngoài phạm vi, vô nghĩa, quá mơ hồ hoặc chỉ xin lời khuyên chung.
+- Sửa một số lỗi gõ phổ biến nhưng không bổ sung ý nghĩa pháp lý mới.
+- Loại kết quả có score thấp hoặc top results quá sát nhau khi câu hỏi không có tín hiệu pháp lý rõ.
+- Không gọi LLM và không trả source khi retrieval không đạt yêu cầu; câu trả lời cố định là:
+  `Không tìm thấy thông tin trong tài liệu được cung cấp.`
+
+Có thể hiệu chỉnh bằng biến môi trường:
+
+```powershell
+$env:MIN_RETRIEVAL_SCORE="0.84"
+$env:MIN_TOP_GAP="0.008"
+$env:MAX_SCORE_DROP="0.08"
+```
+
+Chạy test:
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+Chạy evaluator khớp với pipeline thật:
+
+```powershell
+# Guard + retrieval, không cần Ollama
+.\.venv\Scripts\python.exe local_eval\rag_eval_local.py
+
+# Full evaluation, gồm cả câu trả lời Qwen
+.\.venv\Scripts\python.exe local_eval\rag_eval_local.py --generate
+```
+
+Phần generation dùng structured JSON output, kiểm tra citation, lời khuyên,
+reasoning bị lộ và định danh pháp lý không xuất hiện trong context trước khi trả lời.
+
+Định nghĩa metric, công thức, trade-off, nguồn học thuật và giới hạn của benchmark:
+[`local_eval/README.md`](local_eval/README.md). Bộ regression mặc định có 80 case
+trong [`local_eval/cases/rag_eval_cases.jsonl`](local_eval/cases/rag_eval_cases.jsonl).
+Các điểm `overall_score` và `severity_weighted_score` là composite metric tùy biến
+của dự án, không phải benchmark chuẩn và không đo riêng năng lực của Qwen.
+
+Báo cáo eval JSON/CSV là runtime artifacts và được `.gitignore`; hãy chạy lại evaluator
+để tạo số liệu phù hợp với code, model và phần cứng hiện tại thay vì commit snapshot cũ.
+
 ## 🔌 API
 
 | Endpoint | Method | Description |
@@ -154,8 +230,13 @@ Retrieve only:
 | `/` | GET | Web UI |
 | `/health` | GET | Health check |
 | `/api/chat` | POST | Ask chatbot and return answer + sources |
-| `/api/retrieve` | POST | Retrieve chunks only |
-| `/docs` | GET | Swagger UI |
+| `/api/retrieve` | POST | Retrieve source snippets; disabled by default |
+| `/docs` | GET | Swagger UI; disabled by default |
+
+`question` is limited to 2,000 characters. Source text is truncated and metadata is
+filtered before being returned to clients. Set `ENABLE_RETRIEVE_ENDPOINT=true` only
+for trusted debugging environments. Set `ENABLE_API_DOCS=true` only when API schema
+discovery is intentionally needed.
 
 Example:
 
@@ -223,13 +304,40 @@ vietnamese-company-law-rag-chatbot/
 
 - Repo mặc định không cần OpenAI/Gemini/Anthropic API key.
 - `.env`, `.env.*`, `downloads/`, `drivers/`, cache và log runtime đã được ignore.
-- Docker compose chỉ publish `8000` và `11434` trên `127.0.0.1`.
+- Docker Compose chỉ publish cổng web trên `127.0.0.1`; Ollama không được publish ra host.
 - Web UI render source text bằng DOM/text node để tránh HTML injection từ chunk.
-- `/api/retrieve` trả về full text chunk và metadata; chỉ public khi dữ liệu ingest là public hoặc đã có phân quyền.
+- `/api/retrieve` bị tắt mặc định; source snippet bị giới hạn và metadata dùng allowlist.
+- API từ chối câu hỏi rỗng/null byte, giới hạn độ dài câu hỏi và kích thước request body.
+- Swagger/OpenAPI bị tắt mặc định; response có CSP, anti-framing, no-sniff và no-store headers.
+- `/health` không công khai model, embedding hoặc số lượng tài liệu.
+- Hệ thống không lưu lịch sử chat và Qwen chạy qua Ollama local; prompt không được chủ động gửi tới API LLM cloud.
+
+Nếu mở dịch vụ ra Internet, vẫn cần đặt reverse proxy có TLS, authentication,
+rate limiting, request logging đã loại bỏ dữ liệu nhạy cảm và monitoring. Cấu hình
+mặc định phù hợp chạy local/portfolio, chưa phải cấu hình public multi-tenant.
 
 ## 🛠️ Troubleshooting
 
-Test Ollama:
+### Port 8000 is already in use
+
+Use the Windows startup script:
+
+```powershell
+.\scripts\start-docker.cmd -Detached
+```
+
+For example, when port `8000` is occupied:
+
+```text
+Port 8000 is unavailable. Using port 8001 instead.
+Chatbot URL: http://localhost:8001
+```
+
+Docker Compose itself does not automatically retry another port. The automatic
+fallback behavior is implemented by `scripts/start-docker.ps1`; the
+`start-docker.cmd` wrapper also works when Windows blocks direct `.ps1` execution.
+
+Test Ollama khi chạy Ollama trực tiếp trên máy:
 
 ```bash
 curl http://localhost:11434/api/tags

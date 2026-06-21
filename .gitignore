@@ -27,3 +27,9 @@ drivers/
 # Cache/model/runtime output
 .cache/
 *.log
+
+# Báo cáo eval được sinh lại sau mỗi lần chạy
+local_eval/reports/*.json
+local_eval/reports/*.csv
+local_eval/reports/*.ipynb
+local_eval/reports/*/

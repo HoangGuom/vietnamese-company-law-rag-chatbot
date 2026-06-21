@@ -1,60 +1,93 @@
 services:
-  # ── 1. Ollama server ────────────────────────────────────────────────────────
+  # 1. Ollama server
   ollama:
-    image: ollama/ollama:latest
-    ports:
-      - "127.0.0.1:11434:11434"
+    image: ollama/ollama:0.30.10@sha256:bfc9c6d53cc6989aa5131a6fde6b162b2802d4d337657f3253b5f69579bddeee
     volumes:
-      # Model lưu vào volume, tồn tại giữa các lần restart
-      # Lần đầu pull qwen3:4b ~2.5GB, từ lần 2 trở đi dùng cache
       - ollama_data:/root/.ollama
-    # CPU-safe default: works on machines without NVIDIA GPU setup.
-    # For NVIDIA GPU, use: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build
+    environment:
+      OLLAMA_KEEP_ALIVE: 30m
+      OLLAMA_FLASH_ATTENTION: "true"
+      OLLAMA_CONTEXT_LENGTH: "4096"
     healthcheck:
       test: ["CMD", "ollama", "list"]
       interval: 5s
       timeout: 5s
-      retries: 12  # chờ tối đa 60s cho Ollama khởi động
+      retries: 12
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 512
+    mem_limit: 8g
 
-  # ── 2. Pull Qwen model vào volume (chạy một lần rồi thoát) ─────────────────
+  # 2. Pull the configured model once, then warm it up.
   ollama-pull:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.30.10@sha256:bfc9c6d53cc6989aa5131a6fde6b162b2802d4d337657f3253b5f69579bddeee
     depends_on:
       ollama:
-        condition: service_healthy  # đợi Ollama thực sự sẵn sàng
+        condition: service_healthy
     environment:
       OLLAMA_HOST: http://ollama:11434
-    # Kiểm tra model đã có chưa, tránh re-download khi docker compose up lần 2
-    command: >
-      sh -c "
-        if ollama list | grep -q '${QWEN_MODEL:-qwen3:4b}'; then
-          echo 'Model ${QWEN_MODEL:-qwen3:4b} already exists, skipping pull.';
+      QWEN_MODEL: ${QWEN_MODEL:-qwen3:4b}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if ! printf '%s\n' "$$QWEN_MODEL" | grep -Eq '^[A-Za-z0-9._:/-]+$$'; then
+          echo 'Invalid QWEN_MODEL. Allowed characters: A-Z a-z 0-9 . _ : / -' >&2;
+          exit 2;
+        fi;
+        if ollama list | awk 'NR > 1 {print $$1}' | grep -Fxq -- "$$QWEN_MODEL"; then
+          echo "Model $$QWEN_MODEL already exists, skipping pull.";
         else
-          echo 'Pulling ${QWEN_MODEL:-qwen3:4b}...';
-          ollama pull ${QWEN_MODEL:-qwen3:4b};
-        fi
-      "
+          echo "Pulling $$QWEN_MODEL...";
+          ollama pull "$$QWEN_MODEL";
+        fi;
+        echo "Warming up $$QWEN_MODEL...";
+        ollama run "$$QWEN_MODEL" 'Chỉ trả lời đúng một từ: OK' >/dev/null;
+        echo 'Model warm-up complete.'
     volumes:
-      - ollama_data:/root/.ollama  # dùng chung volume với ollama service
+      - ollama_data:/root/.ollama
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 8g
 
-  # ── 3. RAG chatbot web app ──────────────────────────────────────────────────
+  # 3. RAG chatbot web app
   rag-chatbot:
     build: .
     depends_on:
       ollama-pull:
         condition: service_completed_successfully
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${APP_PORT:-8000}:8000"
     environment:
       OLLAMA_URL: http://ollama:11434
       QWEN_MODEL: ${QWEN_MODEL:-qwen3:4b}
       VECTORSTORE_PATH: vectorstore/legal_vectorstore.json
+      ENABLE_RETRIEVE_ENDPOINT: ${ENABLE_RETRIEVE_ENDPOINT:-false}
     volumes:
       - ./vectorstore:/app/vectorstore:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 8g
+    cpus: 4.0
+    init: true
     restart: unless-stopped
 
 volumes:
   ollama_data:
-    # Volume giữ toàn bộ model Qwen đã pull
-    # docker compose down KHÔNG xóa volume này
-    # Muốn xóa hẳn để pull lại: docker compose down -v
+    # docker compose down keeps this volume; use down -v to remove it.
